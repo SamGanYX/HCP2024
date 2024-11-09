@@ -1,0 +1,82 @@
+  .app {
+    /* Set the background image */
+    background-image: url('../assets/home.png');
+    background-color: #07294d;
+    background-size: cover; /* Cover the entire container */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    height: 92vh; /* Ensure it takes the full viewport height */
+    display: flex;
+    flex-direction: column; /* Arrange children vertically */
+    justify-content: space-between; /* Space out children */
+    align-items: flex-start; /* Align children to the left */
+    color: black; /* Set text color to white for better contrast */
+    padding: 20px; /* Add padding to keep content away from edges */
+  }
+  
+  .title-section {
+    text-align: left;
+    margin-top: 100px; /* Spacing between title and welcome section */
+}
+
+.eatvolution-title {
+    font-weight: bold;
+    font-size: 48px; /* Adjust as needed */
+    color: #black; /* White text color */
+    margin: 0; /* Remove default margin */
+}
+
+.green-text {
+    color: #1bbd88; /* Green color */
+}
+
+  .welcome-section {
+    max-width: 50%; /* Limit the width of the title section to at most half the screen */
+    margin-bottom: 20px; /* Add some margin at the bottom */
+  }
+  
+  .welcome-section h1 {
+    text-align: left;
+    font-size: 36px; /* Adjust font size as needed */
+    margin: 0; /* Remove default margin */
+  }
+  
+  .image-circles {
+    display: flex; /* Display circles in a row */
+    justify-content: center; /* Center circles horizontally */
+    margin: 20px 0; /* Add some vertical margin */
+  }
+  
+  .circle {
+    margin: 0 10px; /* Space between circles */
+  }
+  
+  .button-section {
+    display: flex;
+    flex-direction: column; /* Align buttons vertically */
+    align-items: flex-start; /* Align buttons to the left */
+}
+
+.login-button,
+.signup-button {
+    width: 30vw; /* Set a specific width for the buttons */
+    padding: 15px; /* Increase padding for better appearance */
+    margin: 10px 0; /* Space between buttons */
+    background-color: #1bbd88; /* Primary button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem; /* Font size */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+
+.login-button:hover,
+.signup-button:hover {
+    background-color: #14805f; /* Darker shade on hover */
+}
+
+
+  

@@ -1,0 +1,182 @@
+
+
+/* Main Navbar */
+nav {
+    height: 8vh;
+    padding: 6px 1rem;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    /* background-color: rgba(238, 238, 238, 0.0);; */
+    position: sticky;
+    top: 0px;
+    z-index: 10; /* Ensures navbar stays on top */
+}
+
+nav .title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    background-color: #fff;
+    border-radius: 32px;
+    text-decoration: none;
+    color: #353030;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.green-text {
+    color: #1bbd88; /* Green color */
+}
+
+nav ul {
+    padding-left: 0px;
+    background-color: #fff;
+    border-radius: 32px;
+    display: flex;
+    margin-bottom: 0rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+nav ul li {
+    list-style: none;
+}
+
+nav ul li a {
+    display: block;
+    text-decoration: none;
+    color: #353030;
+    padding: 0.5rem;
+    margin: 0 0.5rem;
+    border-radius: 0.5rem;
+    transition: #0a3868 0.3s ease;
+}
+
+nav ul li .category-toggle {
+    text-decoration: none;
+    color: #353030;
+    padding: 0.5rem;
+    margin: 0 0.5rem;
+    border-radius: 0.5rem;
+}
+
+nav ul li a:not(.active):hover {
+    /* background-color: #eee; */
+    color: #353030;
+}
+
+nav ul li .category-toggle:not(.active):hover {
+    /* background-color: #eee; */
+    color: #353030;
+}
+
+nav .menu {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.5rem;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 2.25rem;
+    height: 2rem;
+}
+
+nav .menu span {
+    height: 0.3rem;
+    width: 100%;
+    background-color: #eee;
+    border-radius: 0.15rem;
+}
+
+/* Categories Subnavbar */
+.category-navbar {
+    background-color: #eee;
+    padding: 0.5rem 1rem;
+    overflow-x: auto; /* Allows scrolling on small screens */
+    white-space: nowrap;
+}
+
+.category-toggle {
+    display: none; /* Hidden by default for desktop */
+    color: #07294D;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+.categories {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.categories li {
+    list-style: none;
+}
+
+.categories li a {
+    color: #353030;
+    text-decoration: none;
+    padding: 0.5rem 0.2rem;
+    /* background-color: #eee; */
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+/* Active state */
+.active {
+    /* background-color: #eee; */
+    color: #443d3d;
+}
+
+.categories li a:hover {
+    /* background-color: #0f5bac; */
+    color: #353030;
+}
+
+/* Mobile Styles */
+@media (max-width: 500px) {
+    nav .menu {
+        display: flex;
+    }
+
+    nav {
+        flex-direction: column;
+        align-items: start;
+    }
+
+    nav ul {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        padding-left: 0;
+        margin-bottom: 0.25rem;
+    }
+
+    nav ul.open {
+        display: flex;
+    }
+
+    nav ul li {
+        width: 100%;
+        text-align: center;
+    }
+
+    nav ul li a {
+        margin: 0.2rem 0.5rem;
+    }
+
+    /* Mobile categories toggle */
+    .category-toggle {
+        display: block; /* Show toggle button on mobile */
+    }
+
+    .categories {
+        display: none;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .categories.categories-open {
+        display: flex; /* Show categories when open on mobile */
+    }
+}

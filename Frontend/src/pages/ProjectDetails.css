@@ -1,0 +1,85 @@
+.project-details-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.funding-goal {
+    text-align: center; /* Center all content in calorie-goal */
+}
+  
+.funding-goal h2 {
+    padding-top: 10px;
+    margin: 10px 0; /* Adjust margin to your liking */
+    font-size: 1.25rem; /* Adjust font size if needed */
+    text-align: center; /* Center the text */
+}
+
+  /* Progress bar styles */
+.progress-bar-container {
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar-container .progress-bar {
+    height: 100%;
+    background-color: #4caf50; /* Change color to green */
+    transition: width 0.3s; /* Smooth transition for width change */
+}
+
+.justify-between{
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.project-images {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.project-images img {
+  max-width: 300px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.project-info {
+  margin-top: 30px;
+}
+
+.funding-progress {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #4CAF50;
+  transition: width 0.3s ease;
+}
+
+.funding-stats {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.project-description, .project-creator {
+  margin-top: 30px;
+} 
