@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 interface InvestorFormData {
@@ -19,6 +19,31 @@ const AddInvestors: React.FC = () => {
   });
   const [images, setImages] = useState<FileList | null>(null);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId = localStorage.getItem('userID');
+        if (!userId) {
+          alert('User not logged in');
+          return;
+        } else {
+            console.log(userId);
+        }
+        
+        const response = await axios.get(`http://localhost:8081/users/${userId}`);
+        setFormData(prev => ({
+          ...prev,
+          name: response.data.Username,
+          email: response.data.Email
+        }));
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+  console.log(formData);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
@@ -39,6 +64,13 @@ const AddInvestors: React.FC = () => {
     Object.keys(formData).forEach(key => {
       formDataToSend.append(key, formData[key as keyof InvestorFormData]);
     });
+    
+    const userId = localStorage.getItem('userID');
+    if (!userId) {
+      alert('User not logged in');
+      return;
+    }
+    formDataToSend.append('userId', userId);
     
     if (images) {
       Array.from(images).forEach(image => {
@@ -76,30 +108,6 @@ const AddInvestors: React.FC = () => {
         <div className="max-w-2xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6">Add New Investor</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-            <label className="block mb-1">Name:</label>
-            <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-            />
-            </div>
-
-            <div>
-            <label className="block mb-1">Email:</label>
-            <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded"
-                required
-            />
-            </div>
-
             <div>
             <label className="block mb-1">Description:</label>
             <textarea

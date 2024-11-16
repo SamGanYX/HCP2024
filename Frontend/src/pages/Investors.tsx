@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Typography, Grid, Card, CardContent, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface Investor {
   id: number;
+  userId: string;
   name: string;
   email: string;
   description: string;
@@ -13,6 +15,7 @@ interface Investor {
 
 const Investors: React.FC = () => {
   const [investors, setInvestors] = useState<Investor[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch investors data
@@ -42,6 +45,10 @@ const Investors: React.FC = () => {
     fetchInvestors();
   }, []);
 
+  const handleInvestorClick = (userId: string) => {
+    navigate(`/user/${userId}`);
+  };
+
   return (
     <Box sx={{ py: 6 }}>
       <Container maxWidth="lg">
@@ -56,7 +63,17 @@ const Investors: React.FC = () => {
         <Grid container spacing={4}>
           {investors.map((investor) => (
             <Grid item xs={12} sm={6} md={4} key={investor.id}>
-              <Card sx={{ height: '100%' }}>
+              <Card 
+                sx={{ 
+                  height: '100%', 
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                    transition: 'transform 0.2s ease-in-out'
+                  }
+                }}
+                onClick={() => handleInvestorClick(investor.userId)}
+              >
                 {investor.imageURL && (
                   <Box
                     sx={{

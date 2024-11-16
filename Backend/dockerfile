@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Add mysql client for health check
+RUN apk add --no-cache mysql-client
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+# Make wait-for.sh executable
+COPY wait-for.sh /wait-for.sh
+RUN chmod +x /wait-for.sh
+
+EXPOSE 8081
+
+# Use wait-for script before starting the app
+CMD ["/wait-for.sh", "db", "npm", "start"]

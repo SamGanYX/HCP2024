@@ -24,7 +24,7 @@ CREATE TABLE projects (
     requiredSkills TEXT, -- List of skills needed for the project
     location VARCHAR(255), -- If relevant, e.g., "Remote" or "Onsite"
     status ENUM('Open', 'Closed') DEFAULT 'Open',
-    FOREIGN KEY (userID) REFERENCES Users(ID)
+    FOREIGN KEY (userID) REFERENCES users(ID)
 );
 
 CREATE TABLE project_images (
@@ -37,12 +37,14 @@ CREATE TABLE project_images (
 
 CREATE TABLE investors (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     description TEXT,
     expertise VARCHAR(255),
     investmentRange VARCHAR(255),
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(ID)
 );
 
 CREATE TABLE investor_images (
@@ -65,8 +67,8 @@ CREATE TABLE UserProjectRoles (
     projectId INT,
     roleId INT,
     joinedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES Users(ID),
-    FOREIGN KEY (projectId) REFERENCES Projects(projectId),
+    FOREIGN KEY (userId) REFERENCES users(ID),
+    FOREIGN KEY (projectId) REFERENCES projects(projectId),
     FOREIGN KEY (roleId) REFERENCES Roles(roleId)
 );
 
@@ -75,8 +77,8 @@ CREATE TABLE Likes (
     userId INT,
     projectId INT,
     likedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES Users(ID),
-    FOREIGN KEY (projectId) REFERENCES Projects(projectId),
+    FOREIGN KEY (userId) REFERENCES users(ID),
+    FOREIGN KEY (projectId) REFERENCES projects(projectId),
     UNIQUE (userId, projectId) -- Prevents duplicate likes from the same user to the same project
 );
 
@@ -85,6 +87,6 @@ CREATE TABLE Matches (
     userId INT,
     projectId INT,
     matchedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES Users(ID),
-    FOREIGN KEY (projectId) REFERENCES Projects(projectId)
+    FOREIGN KEY (userId) REFERENCES users(ID),
+    FOREIGN KEY (projectId) REFERENCES projects(projectId)
 );

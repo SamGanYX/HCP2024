@@ -1,0 +1,1 @@
+{"code":"ER_NO_SUCH_TABLE","errno":1146,"sqlState":"42S02","sqlMessage":"Table 'devSync.users' doesn't exist","sql":"SELECT * FROM users;"}

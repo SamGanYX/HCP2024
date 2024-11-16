@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: 
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8081
+    depends_on:
+      - backend
+
+  backend:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./Backend:/app
+      - /app/node_modules
+    environment:
+      - DB_HOST=db
+      - DB_USER=devSync
+      - DB_PASSWORD=password
+      - DB_NAME=devSync
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=devSync
+      - MYSQL_USER=devSync
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+
+volumes:
+  mysql_data:

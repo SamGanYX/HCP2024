@@ -3,7 +3,10 @@ const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://frontend:5173'],
+    credentials: true
+}));
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 const multer = require('multer');
@@ -15,14 +18,14 @@ const { getRecipes } = require('./src/RecipeBot');
 const { getWorkouts } = require('./src/WorkoutBot');
 const { getQuote } = require('./src/MotivationalBot');
 
-const db = mysql.createConnection({
-    host:"127.0.0.1",
-    user: 'root',
-    password: 'password',
-    database:"SparkHub"
+const connection = mysql.createConnection({
+    host: 'db',
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
-db.connect((err) => {
+connection.connect((err) => {
     if (err) {
         console.error('Error connecting to the database:', err);
         return;
@@ -57,7 +60,7 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
     `;
     const values = [userID, projectName, projectDescription, fundGoal, new Date(), endDate];
 
-    db.query(sql, values, (err, result) => {
+    connection.query(sql, values, (err, result) => {
         console.log(err);
         console.log(result);
         const projectID = result.insertId;
@@ -65,7 +68,7 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
     if (req.files && req.files.length > 0) {
         const imageSQL = "INSERT INTO project_images (projectID, imageURL) VALUES ?";
         const imageValues = req.files.map(file => [projectID, file.filename]);
-        db.query(imageSQL, [imageValues], (imageErr) => {
+        connection.query(imageSQL, [imageValues], (imageErr) => {
         console.log("imageErr");
         console.log(imageErr);
         if (imageErr) return res.status(500).json(imageErr);
@@ -83,7 +86,7 @@ app.post('/users', upload.single('resume'), (req, res) => {
     const { username, email, password, userType, bio } = req.body;
     const resumePath = req.file ? req.file.filename : null;
     const sql1 = "SELECT * FROM users WHERE Username = ?";
-    db.query(sql1, [username], (err, result) => {
+    connection.query(sql1, [username], (err, result) => {
         if(result.length !== 0) {
             console.log(result);
             return res.status(500).json("User already exists");
@@ -93,7 +96,7 @@ app.post('/users', upload.single('resume'), (req, res) => {
                 VALUES (?, ?, ?, ?, ?, ?)`;
             const values = [username, email, password, userType, bio, resumePath];
         
-            db.query(sql, values, (err, result) => {
+            connection.query(sql, values, (err, result) => {
             if (err) {
                 console.log(err);
                 return res.status(500).json(err);
@@ -123,7 +126,7 @@ app.get('/', (req, res) => {
 
 app.get('/users', (req, res) => {
     const sql = "SELECT * FROM users;"
-    db.query(sql, (err, data) => {
+    connection.query(sql, (err, data) => {
         if(err) return res.json(err);
         return res.json(data);
     })
@@ -131,7 +134,7 @@ app.get('/users', (req, res) => {
 
 app.get('/projects', (req, res) => {
     const sql = "SELECT * FROM projects;"
-    db.query(sql, (err, data) => {
+    connection.query(sql, (err, data) => {
         if(err) return res.json(err);
         return res.json(data);
     })
@@ -141,7 +144,7 @@ app.get('/projects/:id', async (req, res) => {
     const projectId = req.params.id; // Get userID from URL params
     const sql = "SELECT * FROM projects WHERE projectID = ?"; // Query for specific user
 
-    db.query(sql, [projectId], (err, data) => {
+    connection.query(sql, [projectId], (err, data) => {
         if (err) return res.status(500).json(err); // Handle SQL errors
         if (data.length === 0) return res.status(404).json({ message: 'Project not found' }); // Handle case when user not found
         return res.json(data[0]); // Return the first user stats object
@@ -150,7 +153,7 @@ app.get('/projects/:id', async (req, res) => {
 
 app.get('/project_images', (req, res) => {
     const sql = "SELECT * FROM project_images;"
-    db.query(sql, (err, data) => {
+    connection.query(sql, (err, data) => {
         if(err) return res.json(err);
         return res.json(data);
     })
@@ -160,7 +163,7 @@ app.get('/userstats/:userID', (req, res) => {
     const userID = req.params.userID; // Get userID from URL params
     const sql = "SELECT * FROM userstats WHERE userID = ?"; // Query for specific user
 
-    db.query(sql, [userID], (err, data) => {
+    connection.query(sql, [userID], (err, data) => {
         if (err) return res.status(500).json(err); // Handle SQL errors
         if (data.length === 0) return res.status(404).json({ message: 'User not found' }); // Handle case when user not found
         return res.json(data[0]); // Return the first user stats object
@@ -174,7 +177,7 @@ app.post('/update_users', (req, res) => {
     const { username, email, password, id } = req.body;
     
     const sql = "UPDATE users SET Username = ?, Email = ?, Password = ? WHERE id = ?;";
-    db.query(sql, [username, email, password, id], (err, data) => {
+    connection.query(sql, [username, email, password, id], (err, data) => {
         console.log(err);
         if (err) return res.status(500).json(err);
         if (data.affectedRows === 0) {
@@ -189,7 +192,7 @@ app.post('/delete_users', (req, res) => {
     const { id } = req.body;
     
     const sql = "DELETE FROM users WHERE id = ?;";
-    db.query(sql, [id], (err, data) => {
+    connection.query(sql, [id], (err, data) => {
         console.log(err);
         if (err) return res.status(500).json(err);
         if (data.affectedRows === 0) {
@@ -209,13 +212,13 @@ app.post('/projects', (req, res) => {
         INSERT INTO projects (userID, projectName, projectDescription, startDate, endDate, fundGoal, fundAmount)
         VALUES (?, ?, ?, ?, ?, ?, 0);
     `;
-    db.query(sql, [userID, projectName, projectDescription, startDate, endDate, fundGoal], (err, data) => {
+    connection.query(sql, [userID, projectName, projectDescription, startDate, endDate, fundGoal], (err, data) => {
         if (err) return res.status(500).json({ error: err.message });
         if (req.files && req.files.length > 0) {
             const imageSQL = "INSERT INTO project_images (projectID, imageURL) VALUES ?";
             const imageValues = req.files.map(file => [projectID, file.filename]);
       
-            db.query(imageSQL, [imageValues], (imageErr) => {
+            connection.query(imageSQL, [imageValues], (imageErr) => {
               if (imageErr) return res.status(500).json(imageErr);
             });
           }
@@ -231,7 +234,7 @@ app.post('/update_project', (req, res) => {
         SET projectName = ?, projectDescription = ?, startDate = ?, endDate = ?, fundGoal = ?, fundAmount = ?
         WHERE projectID = ?;
     `;
-    db.query(sql, [projectName, projectDescription, startDate, endDate, fundGoal, fundAmount, projectID], (err, data) => {
+    connection.query(sql, [projectName, projectDescription, startDate, endDate, fundGoal, fundAmount, projectID], (err, data) => {
         console.log(err);
         if (err) return res.status(500).json({ error: err.message });
         if (data.affectedRows === 0) {
@@ -248,7 +251,7 @@ app.post('/delete_projects', (req, res) => {
     const sql = "DELETE FROM projects WHERE projectID = ?;";
     
     // Execute the query
-    db.query(sql, [projectID], (err, data) => {
+    connection.query(sql, [projectID], (err, data) => {
         if (err) {
             console.error("Error deleting project:", err);
             return res.status(500).json(err);
@@ -273,7 +276,7 @@ app.post('/login', (req, res) => {
     const { username, password } = req.body;
     
     const sql = "SELECT * FROM users WHERE Username = ?";
-    db.query(sql, [username], (err, result) => {
+    connection.query(sql, [username], (err, result) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         if (result.length === 0) return res.status(401).json({ message: 'Invalid credentials' });
         
@@ -318,21 +321,21 @@ app.get('/protected', verifyToken, (req, res) => {
     res.status(200).json({ message: 'This is a protected route.' });
 });
 
-app.listen(8081, () => {
-    console.log("Listening");
-})
+app.listen(8081, '0.0.0.0', () => {
+    console.log('Server is running on port 8081');
+});
 
 // Add this after your existing table creation queries
 app.post('/investors', upload.array('images', 5), (req, res) => {
-    const { name, email, description, expertise, investmentRange } = req.body;
+    const { name, email, description, expertise, investmentRange, userId } = req.body;
     
     // First, insert the investor details
     const sql = `
-        INSERT INTO investors (name, email, description, expertise, investmentRange)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO investors (name, email, description, expertise, investmentRange, userId)
+        VALUES (?, ?, ?, ?, ?, ?)
     `;
     
-    db.query(sql, [name, email, description, expertise, investmentRange], (err, result) => {
+    connection.query(sql, [name, email, description, expertise, investmentRange, userId], (err, result) => {
         if (err) return res.status(500).json(err);
         
         const investorId = result.insertId;
@@ -342,7 +345,7 @@ app.post('/investors', upload.array('images', 5), (req, res) => {
             const imageSQL = "INSERT INTO investor_images (investorId, imageURL) VALUES ?";
             const imageValues = req.files.map(file => [investorId, file.filename]);
             
-            db.query(imageSQL, [imageValues], (imageErr) => {
+            connection.query(imageSQL, [imageValues], (imageErr) => {
                 if (imageErr) return res.status(500).json(imageErr);
                 res.status(201).json({ 
                     message: "Investor created successfully", 
@@ -361,7 +364,7 @@ app.post('/investors', upload.array('images', 5), (req, res) => {
 // Get all investors
 app.get('/investors', (req, res) => {
     const sql = "SELECT * FROM investors";
-    db.query(sql, (err, data) => {
+    connection.query(sql, (err, data) => {
         if(err) return res.json(err);
         return res.json(data);
     });
@@ -370,7 +373,7 @@ app.get('/investors', (req, res) => {
 // Get investor images
 app.get('/investor_images/:investorId', (req, res) => {
     const sql = "SELECT * FROM investor_images WHERE investorId = ?";
-    db.query(sql, [req.params.investorId], (err, data) => {
+    connection.query(sql, [req.params.investorId], (err, data) => {
         if(err) return res.json(err);
         return res.json(data);
     });
@@ -380,10 +383,43 @@ app.get('/users/:id', (req, res) => {
     const userId = req.params.id;
     const sql = "SELECT * FROM users WHERE ID = ?";
     
-    db.query(sql, [userId], (err, data) => {
+    connection.query(sql, [userId], (err, data) => {
         if (err) return res.status(500).json(err);
         if (data.length === 0) return res.status(404).json({ message: 'User not found' });
         return res.json(data[0]);
+    });
+});
+
+// Add this new endpoint
+app.post('/invest', (req, res) => {
+    const { projectID, amount } = req.body;
+    
+    const sql = `
+        UPDATE projects 
+        SET fundAmount = fundAmount + ? 
+        WHERE projectID = ?
+    `;
+    
+    connection.query(sql, [amount, projectID], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ error: err.message });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Project not found" });
+        }
+        return res.status(200).json({ message: "Investment successful" });
+    });
+});
+
+// Add this new endpoint to get projects by userID
+app.get('/projects/user/:userID', (req, res) => {
+    const userID = req.params.userID;
+    const sql = "SELECT * FROM projects WHERE userID = ?";
+    
+    connection.query(sql, [userID], (err, data) => {
+        if (err) return res.status(500).json(err);
+        return res.json(data);
     });
 });
 

@@ -33,6 +33,8 @@ const ProjectDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [projectFiles, setProjectFiles] = useState<ProjectFile[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [investAmount, setInvestAmount] = useState<number>(0);
+  const [showInvestModal, setShowInvestModal] = useState(false);
 
   // Get project ID from URL params
   const projectId = window.location.pathname.split('/').pop();
@@ -51,6 +53,28 @@ const ProjectDetails: React.FC = () => {
       .then((data) => setProjectFiles(data))
       .catch((error) => console.error("Error fetching project files:", error));
   }, [projectId]);
+
+  const handleInvest = async () => {
+    try {
+      const response = await axios.post('http://localhost:8081/invest', {
+        projectID: projectId,
+        amount: investAmount
+      });
+      
+      if (response.status === 200) {
+        // Update the local project state to reflect the new amount
+        setProject(prev => prev ? {
+          ...prev,
+          fundAmount: prev.fundAmount + investAmount
+        } : null);
+        setShowInvestModal(false);
+        setInvestAmount(0);
+      }
+    } catch (error) {
+      console.error('Error making investment:', error);
+      alert('Failed to make investment');
+    }
+  };
 
   if (loading) return (
     <div className="max-w-4xl mx-auto p-6 animate-pulse">
@@ -109,9 +133,45 @@ const ProjectDetails: React.FC = () => {
               <span className="font-medium">Raised: ${project.fundAmount.toLocaleString()}</span>
               <span className="font-medium">Goal: ${project.fundGoal.toLocaleString()}</span>
             </div>
+            <div style={styles.buttonContainer}>
+              <button 
+                style={styles.btn}
+                onClick={() => setShowInvestModal(true)}
+              >
+                Invest
+              </button>
+            </div>
+            
+        {showInvestModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <h2 className="text-xl font-bold mb-4">Make an Investment</h2>
+            <input
+              type="number"
+              value={investAmount}
+              onChange={(e) => setInvestAmount(Number(e.target.value))}
+              className="w-full p-2 border rounded mb-4"
+              placeholder="Enter amount"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowInvestModal(false)}
+                className="px-4 py-2 bg-gray-200 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleInvest}
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+          </div>
+        )}
           </div>
         </div>
-
         {/* Project Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8" style={styles.halfWidth}>
           <div>
@@ -210,6 +270,8 @@ const ProjectDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      
     </div>
   );
 };
@@ -228,6 +290,25 @@ const styles = {
     maxWidth: "100%",
     height: "auto",
     borderRadius: "4px",
+  },
+  buttonContainer: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "15px",
+    justifyContent: "center",
+  },
+  btn: {
+    padding: "8px 16px",
+    margin: "1px",
+    borderRadius: "5px",
+    border: "none",
+    backgroundColor: "#3498db",
+    color: "white",
+    cursor: "pointer",
+    transition: "background-color 0.3s ease",
+    ":hover": {
+      backgroundColor: "#2980b9",
+    },
   },
 };
 export default ProjectDetails;

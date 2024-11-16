@@ -26,6 +26,7 @@ const CreateAccount = () => {
     event.preventDefault();
 
     const formData = new FormData();
+    console.log(formData);
     formData.append('username', Username);
     formData.append('email', Email);
     formData.append('password', Password);
@@ -35,10 +36,7 @@ const CreateAccount = () => {
       formData.append('resume', Resume);
     }
 
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-
+    console.log(formData);  
     try {
       const response = await fetch("http://localhost:8081/users", {
         method: "POST",
@@ -66,7 +64,13 @@ const CreateAccount = () => {
       const loginData = await loginResponse.json();
       localStorage.setItem("token", loginData.token);
       localStorage.setItem("userID", loginData.userID);
-      window.location.href = "/";
+      
+      // Redirect to add_investor if userType is Mentor/Advisor, otherwise go to home
+      if (userType === "Mentor/Advisor") {
+        window.location.href = "/add_investors";
+      } else {
+        window.location.href = "/";
+      }
     } catch (error) {
       console.error("Error:", error);
       setError("Failed to create account, username taken");

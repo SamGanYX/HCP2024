@@ -14,6 +14,7 @@ import Navbar from "./components/NavBar/Navbar";
 import AddInvestors from "./pages/AddInvestors";
 import Investors from "./pages/Investors";
 import ProjectDetails from "./pages/ProjectDetails";
+import Dashboard from './pages/Dashboard';
 const App = () => {
   return (
     <div>
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="/add_investors" element={<AddInvestors />}></Route>
           <Route path="/investors" element={<Investors />}></Route>
           <Route path="/project/:id" element={<ProjectDetails />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NoPage />}></Route>
         </Routes>
       </BrowserRouter>

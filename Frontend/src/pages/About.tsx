@@ -19,24 +19,30 @@ const About = () => {
                     <h3>Shulyn Ragland</h3>
                 </div>
             </div>
-            <h1>About Sparkhub</h1>
-            <h2>How We Built It</h2>
+            <h1>About SparkHub</h1>
             <p>
-                Our team used React, TypeScript, JavaScript, and Python to develop a functional, user-friendly platform. 
-                We combined our skills to integrate backend and frontend features, ensuring smooth and efficient user experiences.
+                SparkHub is a youth development program aimed towards assisting young students in exploring 
+                and developing their passion for STEM, business, and more through projects and competition. 
+                SparkHub serves as a hub meant to connect these students together to develop projects of 
+                their choice, and provides a multitude of resources from experienced mentors to detailed 
+                lectures on a variety of topics.
             </p>
-            
-            <h2>Challenges We Faced</h2>
+
+            <h2>Mission Statement</h2>
             <p>
-                We encountered challenges while learning new skills on the fly, adapting to hidden roadblocks, and meeting tight deadlines. 
-                Despite this, our collaboration and perseverance helped us overcome these hurdles.
+                SparkHub aims to create the next generation of world-changers by providing a space for 
+                like-minded students to connect, share, and develop their passions and interests.
             </p>
-            
-            <h2>What's Next</h2>
+
+            <h2>Resources</h2>
             <p>
-                Looking ahead, we plan to expand the app's features to enhance the user experience, including integration with mobile devices. 
-                We also aim to increase community engagement by introducing live interactions between users.
+                SparkHub aims to provide a variety of resources for our members, including:
             </p>
+            <ul>
+                <li>Professional mentors with years of experience in their respective fields</li>
+                <li>Unique "search and find" listings board for students aiming to join and create projects</li>
+                <li>Detailed lectures on various subjects, all archived on the platform</li>
+            </ul>
         </div>
     );
 };

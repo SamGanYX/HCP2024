@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Project {
+  userID: string;
   projectID: number;
   projectName: string;
   projectDescription: string;
@@ -36,7 +37,7 @@ const ViewProjects: React.FC = () => {
     const extension = filename.split('.').pop()?.toLowerCase() || '';
     return imageExtensions.includes(extension);
   };
-
+console.log(projects);
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>Projects</h1>
@@ -66,11 +67,11 @@ const ViewProjects: React.FC = () => {
               >
                 Details
               </button>
-              <button style={styles.btn}>
+              <button 
+                style={styles.btn}
+                onClick={() => navigate(`/user/${project.userID}`)}
+              >
                 Contact
-              </button>
-              <button style={styles.btn}>
-                Invest
               </button>
             </div>
           </div>
