@@ -23,7 +23,7 @@ const CategoryPage = () => {
   useEffect(() => {
     // Assuming categoryName corresponds to a categoryID in the backend
     const fetchProjects = async () => {
-      fetch(`http://localhost:8081/projects/category/${categoryName}`)
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/projects/category/${categoryName}`)
         .then((res) => res.json())
         .then((data) => {
           setProjects(data);

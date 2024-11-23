@@ -32,11 +32,11 @@ const User: React.FC = () => {
     const fetchUserData = async () => {
       try {
         // Fetch user details
-        const userResponse = await axios.get(`http://localhost:8081/users/${userId}`);
+        const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}`);
         setUser(userResponse.data);
 
         // Fetch user's projects
-        const projectsResponse = await axios.get(`http://localhost:8081/projects`);
+        const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects`);
         const filteredProjects = projectsResponse.data.filter(
           (project: Project) => project.userID === parseInt(userId)
         );
@@ -68,7 +68,7 @@ const User: React.FC = () => {
             <div>
               <h3 className="text-xl font-semibold mb-2">Resume</h3>
               <a 
-                href={`http://localhost:8081/uploads/${user.resumePath}`}
+                href={`${import.meta.env.VITE_BACKEND_URL}/uploads/${user.resumePath}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:text-blue-700"

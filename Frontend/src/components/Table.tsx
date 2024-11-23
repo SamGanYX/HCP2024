@@ -15,7 +15,7 @@ const Table = ({ TableName }: Props) => {
   const [EditEmail, setEditEmail] = useState("");
   const [EditPassword, setEditPassword] = useState("");
   useEffect(() => {
-    fetch("http://localhost:8081/" + TableName)
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/` + TableName)
       .then((res) => res.json())
       .then((data) => {
         setData(data);
@@ -36,7 +36,7 @@ const Table = ({ TableName }: Props) => {
       password: EditPassword,
       id: EditID,
     };
-    fetch("http://localhost:8081/update_users", {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/update_users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const Table = ({ TableName }: Props) => {
     const userData = {
       id: index,
     };
-    fetch("http://localhost:8081/delete_users", {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/delete_users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

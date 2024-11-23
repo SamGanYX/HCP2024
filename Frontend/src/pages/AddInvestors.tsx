@@ -30,7 +30,7 @@ const AddInvestors: React.FC = () => {
             console.log(userId);
         }
         
-        const response = await axios.get(`http://localhost:8081/users/${userId}`);
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userId}`);
         setFormData(prev => ({
           ...prev,
           name: response.data.Username,
@@ -79,7 +79,7 @@ const AddInvestors: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8081/investors', formDataToSend, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/investors`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

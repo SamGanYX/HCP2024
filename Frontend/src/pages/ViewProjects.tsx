@@ -22,7 +22,7 @@ const ViewProjects: React.FC = () => {
     const userID = localStorage.getItem("userID");
     if (userID) {
       // Create application in the database
-      const response = await fetch("http://localhost:8081/applications", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/applications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,12 +50,11 @@ const ViewProjects: React.FC = () => {
 
   // Fetch projects and project images on component mount
   useEffect(() => {
-    fetch("http://localhost:8081/projects")
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/projects`)
       .then((response) => response.json())
       .then((data) => setProjects(data))
       .catch((error) => console.error("Error fetching projects:", error));
-
-    fetch("http://localhost:8081/project_images")
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/project_images`)
       .then((response) => response.json())
       .then((data) => setProjectImages(data))
       .catch((error) => console.error("Error fetching project images:", error));
@@ -68,6 +67,7 @@ const ViewProjects: React.FC = () => {
     return imageExtensions.includes(extension);
   };
 console.log(projects);
+// console.log(import.meta.env.VITE_BACKEND_URL);
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>Projects</h1>
@@ -83,7 +83,7 @@ console.log(projects);
                   isImageFile(image.imageURL) ? (
                     <img
                       key={index}
-                      src={`http://localhost:8081/uploads/${image.imageURL}`}
+                      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${image.imageURL}`}
                       alt={`Project ${project.projectName} - Image ${index + 1}`}
                       style={styles.projectImage}
                     />

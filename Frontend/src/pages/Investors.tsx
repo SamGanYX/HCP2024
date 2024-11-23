@@ -21,17 +21,17 @@ const Investors: React.FC = () => {
     // Fetch investors data
     const fetchInvestors = async () => {
       try {
-        const response = await fetch('http://localhost:8081/investors');
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/investors`);
         const data = await response.json();
         
         // For each investor, fetch their images
         const investorsWithImages = await Promise.all(
           data.map(async (investor: Investor) => {
-            const imageResponse = await fetch(`http://localhost:8081/investor_images/${investor.id}`);
+            const imageResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/investor_images/${investor.id}`);
             const images = await imageResponse.json();
             return {
               ...investor,
-              imageURL: images[0]?.imageURL ? `http://localhost:8081/uploads/${images[0].imageURL}` : undefined
+              imageURL: images[0]?.imageURL ? `${import.meta.env.VITE_BACKEND_URL}/uploads/${images[0].imageURL}` : undefined
             };
           })
         );

@@ -49,7 +49,7 @@ const Projects = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8081/projects_with_image", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/projects_with_image`, {
         method: "POST",
         body: submitData,
       });

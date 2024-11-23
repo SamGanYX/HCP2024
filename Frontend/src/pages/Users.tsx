@@ -11,7 +11,7 @@ const Users = () => {
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
   useEffect(() => {
-    fetch("http://localhost:8081/users")
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
       .then((res) => res.json())
       .then((data) => {
         setData(data);
@@ -28,7 +28,7 @@ const Users = () => {
       email: Email,
       password: Password,
     };
-    fetch("http://localhost:8081/users", {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

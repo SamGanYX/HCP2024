@@ -49,11 +49,11 @@ const Dashboard: React.FC = () => {
     const fetchUserData = async () => {
       try {
         // Replace with your actual API endpoint
-        const userResponse = await axios.get(`http://localhost:8081/users/${userID}`);
+        const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userID}`);
         setUser(userResponse.data);
 
         // Fetch additional data based on user type
-        const projectsResponse = await axios.get(`http://localhost:8081/projects/user/${userID}`);
+        const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects/user/${userID}`);
         setProjects(projectsResponse.data);
         if (userResponse.data.userType === 'Mentor/Advisor') {
           const investorResponse = await axios.get(`/api/investors/${userResponse.data.ID}`);
@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
       }
     };
 
-    fetch("http://localhost:8081/project_images")
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/project_images`)
       .then((response) => response.json())
       .then((data) => setProjectImages(data))
       .catch((error) => console.error("Error fetching project images:", error));
@@ -105,7 +105,7 @@ const Dashboard: React.FC = () => {
                   isImageFile(image.imageURL) ? (
                     <img
                       key={index}
-                      src={`http://localhost:8081/uploads/${image.imageURL}`}
+                      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${image.imageURL}`}
                       alt={`Project ${project.projectName} - Image ${index + 1}`}
                       className="project-image"
                     />

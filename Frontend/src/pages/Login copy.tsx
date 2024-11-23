@@ -17,7 +17,7 @@ const Login = () => {
       username: Username,
       password: Password,
     };
-    fetch("http://localhost:8081/login", {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

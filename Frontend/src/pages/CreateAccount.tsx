@@ -11,7 +11,7 @@ const CreateAccount = () => {
   const [TheError, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8081/users")
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
       .then((res) => res.json())
       .catch((err) => console.log(err));
   }, []);
@@ -38,7 +38,7 @@ const CreateAccount = () => {
 
     console.log(formData);  
     try {
-      const response = await fetch("http://localhost:8081/users", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
         method: "POST",
         body: formData
       });
@@ -50,7 +50,7 @@ const CreateAccount = () => {
       console.log("User added successfully:", data);
 
       // Attempt to log in the user
-      const loginResponse = await fetch("http://localhost:8081/login", {
+      const loginResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

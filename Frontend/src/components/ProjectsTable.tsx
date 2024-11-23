@@ -28,7 +28,7 @@ const ProjectsTable = () => {
   const [editFundGoal, setEditFundGoal] = useState(0);
 
   useEffect(() => {
-    fetch("http://localhost:8081/projects")
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/projects`)
       .then((res) => res.json())
       .then((data) => {
         setData(data);
@@ -58,7 +58,7 @@ const ProjectsTable = () => {
       fundGoal: editFundGoal,
     };
 
-    fetch("http://localhost:8081/update_project", {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/update_project`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -83,7 +83,7 @@ const ProjectsTable = () => {
         projectID: projectID,
       };
 
-      fetch("http://localhost:8081/delete_projects", {
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/delete_projects`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

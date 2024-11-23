@@ -15,7 +15,7 @@ const Navbar = () => {
   const userID = localStorage.getItem("userID");
   // console.log(userID);
   // useEffect(() => {
-  //   fetch("http://localhost:8081/categories")
+  //   fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`)
   //     .then((res) => res.json())
   //     .then((data) => {
   //       setData(data);

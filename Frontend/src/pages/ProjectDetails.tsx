@@ -53,7 +53,7 @@ const ProjectDetails: React.FC = () => {
   const userID = localStorage.getItem("userID");
 
   useEffect(() => {
-    fetch(`http://localhost:8081/projects/${projectId}`)
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/projects/${projectId}`)
       .then((response) => {
         return response.json();
       })
@@ -61,13 +61,13 @@ const ProjectDetails: React.FC = () => {
       .catch((error) => console.error("Error fetching project:", error))
       .finally(() => setLoading(false));
 
-    fetch("http://localhost:8081/project_images")
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/project_images`)
       .then((response) => response.json())
       .then((data) => setProjectFiles(data))
       .catch((error) => console.error("Error fetching project files:", error));
 
     // Fetch applicants for the project
-    fetch(`http://localhost:8081/projects/${projectId}/applicants`)
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/projects/${projectId}/applicants`)
       .then((response) => 
         response.json())
       .then((data) => setApplicants(data))
@@ -76,7 +76,7 @@ const ProjectDetails: React.FC = () => {
 
   const handleInvest = async () => {
     try {
-      const response = await axios.post('http://localhost:8081/invest', {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/invest`, {
         projectID: projectId,
         amount: investAmount
       });
@@ -203,7 +203,7 @@ const ProjectDetails: React.FC = () => {
                 .filter((file) => file.projectID === project.projectID)
                 .map((file, index) => {
                   const fileType = getFileType(file.imageURL);
-                  const fileUrl = `http://localhost:8081/uploads/${file.imageURL}`;
+                  const fileUrl = `${import.meta.env.VITE_BACKEND_URL}/uploads/${file.imageURL}`;
                   
                   switch (fileType) {
                     case 'image':

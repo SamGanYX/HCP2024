@@ -28,7 +28,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     const userID = localStorage.getItem("userID");
     if (userID) {
       // Create application in the database
-      const response = await fetch("http://localhost:8081/applications", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/applications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,7 +65,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {uploadedImageURL ? (
         <img
-          src={`http://localhost:8081${uploadedImageURL}`}
+          src={`${import.meta.env.VITE_BACKEND_URL}/${uploadedImageURL}`}
           alt="Project"
           className="project-image"
         />
