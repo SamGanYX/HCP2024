@@ -423,5 +423,38 @@ app.get('/projects/user/:userID', (req, res) => {
     });
 });
 
+// Application endpoint
+app.post('/applications', (req, res) => {
+    const { userID, projectID } = req.body;
 
+    // SQL query to insert a new application
+    const sql = `
+        INSERT INTO applications (userID, projectID)
+        VALUES (?, ?)
+    `;
+
+    connection.query(sql, [userID, projectID], (err, result) => {
+        if (err) {
+            console.error("Error inserting application:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        // console.log("success");
+        return res.status(201).json({ message: "Application submitted successfully", applicationID: result.insertId });
+    });
+});
+
+app.get('/projects/:id/applicants', (req, res) => {
+    const projectId = req.params.id; // Get project ID from URL params
+    const sql = `
+        SELECT *
+        FROM applications 
+        WHERE projectID = ${projectId}
+    `; // Query to get applicants for the specific project
+    // console.log(projectId);
+    connection.query(sql, (err, data) => {
+        if (err) return res.status(500).json(err); // Handle SQL errors
+        console.log(data);
+        return res.status(201).json(data); // Return the list of applicants
+    });
+});
 

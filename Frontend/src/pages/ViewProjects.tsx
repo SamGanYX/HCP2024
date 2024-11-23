@@ -18,6 +18,36 @@ const ViewProjects: React.FC = () => {
   const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
   const navigate = useNavigate();
 
+  const onApply = async (projectID: number) => {
+    const userID = localStorage.getItem("userID");
+    if (userID) {
+      // Create application in the database
+      const response = await fetch("http://localhost:8081/applications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userID, projectID }),
+      });
+
+      if (response.ok) {
+        alert("Application submitted successfully!");
+      } else {
+        alert("Failed to submit application.");
+      }
+    } else {
+      alert("You must be logged in to apply.");
+    }
+  };
+  const handleApply = (projectID: number) => {
+    const userID = localStorage.getItem("userID");
+    if (userID) {
+      onApply(projectID);
+    } else {
+      alert("You must be logged in to apply.");
+    }
+  };
+
   // Fetch projects and project images on component mount
   useEffect(() => {
     fetch("http://localhost:8081/projects")
@@ -72,6 +102,10 @@ console.log(projects);
                 onClick={() => navigate(`/user/${project.userID}`)}
               >
                 Contact
+              </button>
+
+              <button className="btn" style={styles.btn} onClick={() => handleApply(project.projectID)}>
+                Apply
               </button>
             </div>
           </div>

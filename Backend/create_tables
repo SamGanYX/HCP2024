@@ -90,3 +90,12 @@ CREATE TABLE Matches (
     FOREIGN KEY (userId) REFERENCES users(ID),
     FOREIGN KEY (projectId) REFERENCES projects(projectId)
 );
+
+CREATE TABLE applications (
+    userID INT,
+    projectID INT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (userID, projectID),  -- Composite primary key
+    FOREIGN KEY (userID) REFERENCES users(ID),
+    FOREIGN KEY (projectID) REFERENCES projects(projectID)
+);

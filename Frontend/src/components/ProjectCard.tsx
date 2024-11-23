@@ -24,6 +24,35 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const [uploadedImageURL, setUploadedImageURL] = useState<string | null>(
     imageURL
   );
+  const onApply = async (projectID: number) => {
+    const userID = localStorage.getItem("userID");
+    if (userID) {
+      // Create application in the database
+      const response = await fetch("http://localhost:8081/applications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userID, projectID }),
+      });
+
+      if (response.ok) {
+        alert("Application submitted successfully!");
+      } else {
+        alert("Failed to submit application.");
+      }
+    } else {
+      alert("You must be logged in to apply.");
+    }
+  };
+  const handleApply = () => {
+    const userID = localStorage.getItem("userID");
+    if (userID) {
+      onApply(projectID);
+    } else {
+      alert("You must be logged in to apply.");
+    }
+  };
 
   return (
     <div className="project-card">
@@ -43,6 +72,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       ) : (
         <p>No image uploaded</p>
       )}
+
+      <button className="btn" onClick={handleApply}>
+        Apply
+      </button>
     </div>
   );
 };

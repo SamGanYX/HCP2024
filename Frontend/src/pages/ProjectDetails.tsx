@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { FaCalendar, FaMapMarkerAlt, FaBookOpen, FaCheckCircle } from 'react-icons/fa';
 import './ProjectDetails.css';
+import { Link } from 'react-router-dom';
+// import { UserContext } from '../context/UserContext';
 
 interface Project {
   projectID: number;
@@ -15,6 +17,7 @@ interface Project {
   requiredSkills: string;
   location: string;
   status: 'Open' | 'Closed';
+  userID: number;
 }
 
 interface ProjectImage {
@@ -28,6 +31,11 @@ interface ProjectFile {
   fileType?: string; // Optional: if you have file type info from backend
 }
 
+interface Applicant {
+  userID: number;
+  projectID: number;
+}
+
 const ProjectDetails: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,9 +43,14 @@ const ProjectDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [investAmount, setInvestAmount] = useState<number>(0);
   const [showInvestModal, setShowInvestModal] = useState(false);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
 
   // Get project ID from URL params
   const projectId = window.location.pathname.split('/').pop();
+
+  // Get current user from context
+  // const { currentUser } = useContext(UserContext);
+  const userID = localStorage.getItem("userID");
 
   useEffect(() => {
     fetch(`http://localhost:8081/projects/${projectId}`)
@@ -52,6 +65,13 @@ const ProjectDetails: React.FC = () => {
       .then((response) => response.json())
       .then((data) => setProjectFiles(data))
       .catch((error) => console.error("Error fetching project files:", error));
+
+    // Fetch applicants for the project
+    fetch(`http://localhost:8081/projects/${projectId}/applicants`)
+      .then((response) => 
+        response.json())
+      .then((data) => setApplicants(data))
+      .catch((error) => console.error("Error fetching applicants:", error));
   }, [projectId]);
 
   const handleInvest = async () => {
@@ -271,7 +291,22 @@ const ProjectDetails: React.FC = () => {
         </div>
       </div>
 
-      
+      {/* Applicants Section */}
+      {project && project.userID === Number(userID) && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-4">Applicants</h2>
+          <ul>
+            {applicants.map((applicant, index) => (
+              <li key={index} className="mb-2">
+                <Link to={`/user/${applicant.userID}`} className="text-blue-500 hover:underline">
+                  {applicant.userID}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
     </div>
   );
 };
