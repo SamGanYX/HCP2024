@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext";
 import './CreateAccount.css';
+import './Login.css';
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -56,37 +57,46 @@ const Login = () => {
     window.location.href = "/home";
   }
   return (
-    <div className="container">
+    <div className="container login-container">
       <div className="left-section">
         <h1>
-          Spark<span>Hub</span>
+          {/* Spark<span>Hub</span> */}
         </h1>
       </div>
-      <div className="form-div">
-        <h2>Login</h2>
-        {TheError && <p>{TheError}</p>}
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="Username"
-            id="Username"
-            placeholder="Username"
-            value={Username}
-            onChange={(e) => setUsername(e.target.value)}
+      <div className="login-form-div">
+        <div className="column-l">
+          <img
+            src={`/src/assets/home.png`}
+            alt="Project"
+            className="project-image"
           />
-          <input
-            type="password" // Change type to "password"
-            name="Password"
-            id="Password"
-            placeholder="Password"
-            value={Password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="off" // Prevent autofill
-          />
-          <button type="submit">Login</button>
-        </form>
-        <div className="already-have-account">
-          <p>Don't have an account yet? <a href="/create_account">Create one</a></p>
+          <h2>Login</h2>
+        </div>
+        <div className="column-r-login">
+          {TheError && <p>{TheError}</p>}
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="Username"
+              id="Username"
+              placeholder="Username"
+              value={Username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              type="password" // Change type to "password"
+              name="Password"
+              id="Password"
+              placeholder="Password"
+              value={Password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="off" // Prevent autofill
+            />
+            <button type="submit">Login</button>
+          </form>
+          <div className="already-have-account">
+            <p>Don't have an account yet? <a href="/create_account">Create one</a></p>
+          </div>
         </div>
       </div>
     </div>

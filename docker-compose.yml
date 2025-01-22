@@ -34,7 +34,10 @@ services:
         condition: service_healthy
 
   db:
-    image: mysql:8.0
+
+    build: 
+      context: ./db
+      dockerfile: Dockerfile
     command: --default-authentication-plugin=mysql_native_password
     ports:
       - "3306:3306"

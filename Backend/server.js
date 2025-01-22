@@ -83,7 +83,7 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
 });
 
 app.post('/users', upload.single('resume'), (req, res) => {
-    const { username, email, password, userType, bio } = req.body;
+    const { username, FullName, email, password, userType, bio } = req.body;
     const resumePath = req.file ? req.file.filename : null;
     const sql1 = "SELECT * FROM users WHERE Username = ?";
     connection.query(sql1, [username], (err, result) => {
@@ -92,9 +92,9 @@ app.post('/users', upload.single('resume'), (req, res) => {
             return res.status(500).json("User already exists");
         } else {
             const sql = `
-                INSERT INTO users (username, email, password, userType, bio, resumePath)
-                VALUES (?, ?, ?, ?, ?, ?)`;
-            const values = [username, email, password, userType, bio, resumePath];
+                INSERT INTO users (username, FullName, email, password, userType, bio, resumePath)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            const values = [username, FullName, email, password, userType, bio, resumePath];
         
             connection.query(sql, values, (err, result) => {
             if (err) {
@@ -327,15 +327,15 @@ app.listen(8081, '0.0.0.0', () => {
 
 // Add this after your existing table creation queries
 app.post('/investors', upload.array('images', 5), (req, res) => {
-    const { name, email, description, expertise, investmentRange, userId } = req.body;
-    
+    const { name, email, description, expertise, investmentRange, userId, qualifications, location, certifications, tags, contactInfo } = req.body;
+    console.log(req.body);
     // First, insert the investor details
     const sql = `
-        INSERT INTO investors (name, email, description, expertise, investmentRange, userId)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO investors (name, email, description, expertise, investmentRange, userId, Qualifications, Location, Certifications, Tags, ContactInfo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
-    connection.query(sql, [name, email, description, expertise, investmentRange, userId], (err, result) => {
+    connection.query(sql, [name, email, description, expertise, investmentRange, userId, qualifications, location, certifications, tags, contactInfo], (err, result) => {
         if (err) return res.status(500).json(err);
         
         const investorId = result.insertId;
@@ -387,6 +387,34 @@ app.get('/users/:id', (req, res) => {
         if (err) return res.status(500).json(err);
         if (data.length === 0) return res.status(404).json({ message: 'User not found' });
         return res.json(data[0]);
+    });
+});
+
+// Add this new endpoint to get projects by userID
+app.get('/investors/:id', (req, res) => {
+    const investorID = req.params.id;
+    const sql = "SELECT * FROM investors WHERE ID = ?";
+    
+    connection.query(sql, [investorID], (err, data) => {
+        if (err) return res.status(500).json(err);
+        if (data.length === 0) return res.status(404).json({ message: 'Investor not found' });
+        return res.json(data[0]);
+    });
+});
+
+app.post('/collaborators', (req, res) => {
+    const { projectID, userID } = req.body;
+    const sql = `
+        INSERT INTO collaborators (projectID, userID)
+        VALUES (?, ?)
+    `;
+
+    connection.query(sql, [projectID, userID], (err, result) => {
+        if (err) {
+            console.error("Error adding collaborator:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        return res.status(201).json({ message: "Collaborator added successfully", collaboratorID: result.insertId });
     });
 });
 
@@ -455,6 +483,48 @@ app.get('/projects/:id/applicants', (req, res) => {
         if (err) return res.status(500).json(err); // Handle SQL errors
         console.log(data);
         return res.status(201).json(data); // Return the list of applicants
+    });
+});
+
+// Add this new endpoint to delete an application
+app.delete('/applicants/:projectId/:id', (req, res) => {
+    const applicantID = req.params.id; // Get applicant ID from URL params
+    const projectID = req.params.projectId
+
+    // SQL query to delete the application
+    const sql = "DELETE FROM applications WHERE userID = ? AND projectID = ?";
+
+    connection.query(sql, [applicantID, projectID], (err, result) => {
+        if (err) {
+            console.error("Error deleting application:", err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Application not found" });
+        }
+        console.log("success");
+        return res.status(200).json({ message: "Application deleted successfully" });
+    });
+});
+
+app.get('/projects/:id/collaborators', (req, res) => {
+    const projectId = req.params.id; // Get project ID from URL params
+
+    // SQL query to get collaborators for the specific project
+    const sql = `
+        SELECT u.ID, u.FullName, u.username
+        FROM collaborators c
+        JOIN users u ON c.userID = u.ID
+        WHERE c.projectID = ?
+    `;
+
+    connection.query(sql, [projectId], (err, data) => {
+        if (err) {
+            console.error("Error fetching collaborators:", err);
+            return res.status(500).json(err); // Handle SQL errors
+        }
+        return res.json(data); // Return the list of collaborators
     });
 });
 

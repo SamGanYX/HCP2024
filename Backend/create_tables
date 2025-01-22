@@ -99,3 +99,26 @@ CREATE TABLE applications (
     FOREIGN KEY (userID) REFERENCES users(ID),
     FOREIGN KEY (projectID) REFERENCES projects(projectID)
 );
+
+CREATE TABLE collaborators (
+    collaboratorId INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT NOT NULL,
+    projectId INT NOT NULL,
+    joinedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (projectId) REFERENCES projects(projectID) ON DELETE CASCADE,
+    UNIQUE (userId, projectId) -- Prevents duplicate collaborations
+);
+
+ALTER TABLE investors
+ADD Qualifications VARCHAR(255),
+ADD Location VARCHAR(255),
+ADD Certifications TEXT,
+ADD Tags TEXT, -- Assuming Tags will be stored as a comma-separated list
+ADD ContactInfo VARCHAR(255);
+
+ALTER TABLE users
+ADD FullName VARCHAR(255);
+
+ALTER TABLE projects
+ADD category VARCHAR(255);

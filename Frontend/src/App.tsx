@@ -8,6 +8,7 @@ import Users from "./pages/Users";
 import Projects from "./pages/Projects";
 import Login from "./pages/Login";
 import User from "./pages/User";
+import InvestorDetails from "./pages/InvestorDetails";
 import CreateAccount from "./pages/CreateAccount";
 import ViewProjects from "./pages/ViewProjects";
 import Navbar from "./components/NavBar/Navbar";
@@ -27,6 +28,7 @@ const App = () => {
           <Route path="/contact" element={<Contact />}></Route>
           <Route path="/users" element={<Users />}></Route>
           <Route path="/user/:id" element={<User />}></Route>
+          <Route path="/investor/:id" element={<InvestorDetails />} />
           <Route path="/projects_map" element={<Projects />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/projects" element={<ViewProjects />}></Route>

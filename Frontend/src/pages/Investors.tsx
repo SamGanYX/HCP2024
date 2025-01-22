@@ -45,8 +45,8 @@ const Investors: React.FC = () => {
     fetchInvestors();
   }, []);
 
-  const handleInvestorClick = (userId: string) => {
-    navigate(`/user/${userId}`);
+  const handleInvestorClick = (investorId: number) => {
+    navigate(`/investor/${investorId}`);
   };
 
   return (
@@ -72,7 +72,7 @@ const Investors: React.FC = () => {
                     transition: 'transform 0.2s ease-in-out'
                   }
                 }}
-                onClick={() => handleInvestorClick(investor.userId)}
+                onClick={() => handleInvestorClick(investor.id)}
               >
                 {investor.imageURL && (
                   <Box

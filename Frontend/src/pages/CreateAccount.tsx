@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import './CreateAccount.css';
+import './Login.css';
 
 const CreateAccount = () => {
   const [Username, setUsername] = useState("");
+  const [FullName, setFullName] = useState("");
   const [userType, setUserType] = useState("Project Seeker");
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
@@ -28,6 +30,7 @@ const CreateAccount = () => {
     const formData = new FormData();
     console.log(formData);
     formData.append('username', Username);
+    formData.append('FullName', FullName);
     formData.append('email', Email);
     formData.append('password', Password);
     formData.append('userType', userType);
@@ -68,6 +71,8 @@ const CreateAccount = () => {
       // Redirect to add_investor if userType is Mentor/Advisor, otherwise go to home
       if (userType === "Mentor/Advisor") {
         window.location.href = "/add_investors";
+      } else if (userType === "Project Owner") {
+        window.location.href = "/projects_map";
       } else {
         window.location.href = "/";
       }
@@ -79,69 +84,79 @@ const CreateAccount = () => {
 
   return (
     <div className="container">
-      <div className="left-section">
-        <h1>
-          Spark<span className="green-text">Hub</span>
-        </h1>
-      </div>
-      <div className="form-div">
-        <h2>Create an Account</h2>
-        {TheError && <p>{TheError}</p>}
-        <form onSubmit={handleSubmit}>
-          <input
-            id="userName"
-            type="text"
-            placeholder="Enter Username"
-            onChange={(e) => setUsername(e.target.value)}
+      <div className="login-form-div" style={{ marginTop: 0, alignItems: 'flex-start' }}>
+        <div className="column-l">
+          <img
+            src={`/src/assets/home.png`}
+            alt="Project"
+            className="project-image"
           />
-          <input
-            id="email"
-            type="text"
-            placeholder="Enter Email"
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <div className="form-group-calorie-form">
-            <label htmlFor="userType">User Type:</label>
-            <select
-              id="userType"
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-              className="form-control"
-              required
-            >
-              <option value="Project Seeker">Project Seeker</option>
-              <option value="Project Owner">Project Owner</option>
-              <option value="Mentor/Advisor">Mentor/Advisor</option>
-            </select>
-          </div>
+          <h2>Create An Account</h2>
+        </div>
+          <div className="column-r">
+          {TheError && <p>{TheError}</p>}
+          <form onSubmit={handleSubmit}>
+            <input
+              id="userName"
+              type="text"
+              placeholder="Enter Username"
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              id="fullName"
+              type="text"
+              placeholder="Enter full name"
+              onChange={(e) => setFullName(e.target.value)}
+            />
+            <input
+              id="email"
+              type="text"
+              placeholder="Enter Email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <div className="form-group-calorie-form">
+              <label htmlFor="userType">User Type:</label>
+              <select
+                id="userType"
+                value={userType}
+                onChange={(e) => setUserType(e.target.value)}
+                className="form-control"
+                required
+              >
+                <option value="Project Seeker">Project Seeker</option>
+                <option value="Project Owner">Project Owner</option>
+                <option value="Mentor/Advisor">Mentor/Advisor</option>
+              </select>
+            </div>
 
-          <label htmlFor="resume">Resume:</label>
-          <input
-            id="resume"
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={handleResumeChange}
-          />
-          <label htmlFor="bio">Short Bio:</label>
-          <textarea
-            id="bio"
-            placeholder="Enter Bio"
-            onChange={(e) => setBio(e.target.value)}
-          ></textarea>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            name="Password"
-            id="Password"
-            placeholder="Enter Password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit" className="btn btn-primary">
-            Create account
-          </button>
-        </form>
-        <div className="already-have-account">
-          <p>Already Have An Account? <a href="/login">Log In</a></p>
+            <label htmlFor="resume">Resume:</label>
+            <input
+              id="resume"
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={handleResumeChange}
+            />
+            <label htmlFor="bio">Short Bio:</label>
+            <textarea
+              id="bio"
+              placeholder="Enter Bio"
+              onChange={(e) => setBio(e.target.value)}
+            ></textarea>
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              name="Password"
+              id="Password"
+              placeholder="Enter Password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button type="submit" className="btn btn-primary">
+              Create account
+            </button>
+          </form>
+          <div className="already-have-account">
+            <p>Already Have An Account? <a href="/login">Log In</a></p>
+          </div>
         </div>
       </div>
     </div>

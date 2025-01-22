@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface Project {
   userID: string;
+  category: string;
   projectID: number;
   projectName: string;
   projectDescription: string;
@@ -16,6 +17,8 @@ interface ProjectImage {
 const ViewProjects: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const onApply = async (projectID: number) => {
@@ -60,6 +63,17 @@ const ViewProjects: React.FC = () => {
       .catch((error) => console.error("Error fetching project images:", error));
   }, []);
 
+  useEffect(() => {
+    const uniqueCategories = Array.from(
+      new Set(projects.map(project => project.category))
+    ).filter(Boolean);
+    setCategories(uniqueCategories);
+  }, [projects]);
+
+  const filteredProjects = selectedCategory.length === 0
+    ? projects
+    : projects.filter(project => selectedCategory.includes(project.category));
+
   // Add this helper function
   const isImageFile = (filename: string): boolean => {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
@@ -71,51 +85,139 @@ console.log(projects);
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>Projects</h1>
-      <div style={styles.projectGrid}>
-        {projects.map((project: Project) => (
-          <div key={project.projectID} style={styles.projectCard}>
-            <h2 style={styles.projectTitle}>{project.projectName}</h2>
-            <p style={styles.description}>{project.projectDescription}</p>
-            <div style={styles.imageGallery}>
-              {projectImages
-                .filter((image) => image.projectID === project.projectID)
-                .map((image, index) => (
-                  isImageFile(image.imageURL) ? (
-                    <img
-                      key={index}
-                      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${image.imageURL}`}
-                      alt={`Project ${project.projectName} - Image ${index + 1}`}
-                      style={styles.projectImage}
-                    />
-                  ) : null
-                ))}
-            </div>
-            <div style={styles.buttonContainer}>
-              <button 
-                style={styles.btn}
-                onClick={() => navigate(`/project/${project.projectID}`)}
-              >
-                Details
-              </button>
-              <button 
-                style={styles.btn}
-                onClick={() => navigate(`/user/${project.userID}`)}
-              >
-                Contact
-              </button>
-
-              <button className="btn" style={styles.btn} onClick={() => handleApply(project.projectID)}>
-                Apply
-              </button>
-            </div>
+      <div style={styles.contentWrapper}>
+        <div style={styles.sidebar}>
+          <h3 style={styles.filterTitle}>Categories</h3>
+          <div style={styles.categoryList}>
+            <button
+              style={{
+                ...styles.categoryButton,
+                backgroundColor: selectedCategory.length === 0 ? '#2980b9' : '#3498db'
+              }}
+              onClick={() => setSelectedCategory([])}
+            >
+              All Projects
+            </button>
+            {categories.map((category) => (
+              <label key={category} style={styles.categoryLabel}>
+                <input
+                  type="checkbox" 
+                  checked={selectedCategory.includes(category)}
+                  onChange={() => {
+                    if (selectedCategory.includes(category)) {
+                      setSelectedCategory(selectedCategory.filter(item => item !== category));
+                    } else {
+                      setSelectedCategory([...selectedCategory, category])
+                    }
+                  }}
+                />
+                {category}
+              </label>
+            ))}
           </div>
-        ))}
+        </div>
+        <div style={styles.projectGrid}>
+          {projects.filter((project: Project)=>(selectedCategory.length === 0 || selectedCategory.includes(project.category))).map((project: Project) => (
+            <div key={project.projectID} style={styles.projectCard}>
+              <h2 style={styles.projectTitle}>{project.projectName}</h2>
+              <p style={styles.description}>{project.projectDescription}</p>
+              <div style={styles.imageGallery}>
+                {projectImages
+                  .filter((image) => image.projectID === project.projectID)
+                  .map((image, index) => (
+                    isImageFile(image.imageURL) ? (
+                      <img
+                        key={index}
+                        src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${image.imageURL}`}
+                        alt={`Project ${project.projectName} - Image ${index + 1}`}
+                        style={styles.projectImage}
+                      />
+                    ) : null
+                  ))}
+              </div>
+              <div style={styles.buttonContainer}>
+                <button 
+                  style={styles.btn}
+                  onClick={() => navigate(`/project/${project.projectID}`)}
+                >
+                  Details
+                </button>
+                <button 
+                  style={styles.btn}
+                  onClick={() => navigate(`/user/${project.userID}`)}
+                >
+                  Contact
+                </button>
+
+                <button className="btn" style={styles.btn} onClick={() => handleApply(project.projectID)}>
+                  Apply
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
 const styles = {
+  contentWrapper: {
+    display: 'flex',
+    gap: '20px',
+    marginTop: '20px',
+  },
+  
+  sidebar: {
+    width: '250px',
+    minWidth: '250px',
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    height: 'fit-content',
+  },
+  
+  filterTitle: {
+    color: '#2c3e50',
+    marginBottom: '15px',
+    fontSize: '1.2rem',
+    textAlign: 'left' as const,
+  },
+  
+  categoryList: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '10px',
+  },
+
+  categoryButton: {
+    padding: '8px 16px',
+    borderRadius: '5px',
+    border: 'none',
+    backgroundColor: '#3498db',
+    color: 'white',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+    textAlign: 'left' as const,
+    ':hover': {
+      backgroundColor: '#2980b9',
+    },
+  },
+
+  categoryLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px',
+    cursor: 'pointer',
+    padding: '5px 10px',
+    borderRadius: '4px',
+    backgroundColor: '#f0f0f0',
+    '&:hover': {
+      backgroundColor: '#e0e0e0'
+    }
+  },
+
   container: {
     padding: "20px",
     textAlign: "center" as const,
@@ -126,6 +228,7 @@ const styles = {
   },
   projectGrid: {
     display: "grid",
+    width:"100%",
     gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
     gap: "20px",
     marginTop: "20px",
@@ -143,8 +246,11 @@ const styles = {
     },
   },
   projectImage: {
-    width: "100%",
+    width: "auto",
     height: "auto",
+    maxWidth:'100%',
+    maxHeight: "200px",
+    objectFit: "contain" as const,
     borderRadius: "8px",
     marginBottom: "10px",
   },

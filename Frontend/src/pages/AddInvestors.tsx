@@ -7,6 +7,11 @@ interface InvestorFormData {
   description: string;
   expertise: string;
   investmentRange: string;
+  qualifications: string;
+  location: string;
+  certifications: string;
+  tags: string;
+  contactInfo: string;
 }
 
 const AddInvestors: React.FC = () => {
@@ -15,7 +20,12 @@ const AddInvestors: React.FC = () => {
     email: '',
     description: '',
     expertise: '',
-    investmentRange: ''
+    investmentRange: '',
+    qualifications: '',
+    location: '',
+    certifications: '',
+    tags: '',
+    contactInfo: ''
   });
   const [images, setImages] = useState<FileList | null>(null);
 
@@ -93,7 +103,12 @@ const AddInvestors: React.FC = () => {
           email: '',
           description: '',
           expertise: '',
-          investmentRange: ''
+          investmentRange: '',
+          qualifications: '',
+          location: '',
+          certifications: '',
+          tags: '',
+          contactInfo: ''
         });
         setImages(null);
       }
@@ -153,6 +168,66 @@ const AddInvestors: React.FC = () => {
                 accept="image/*"
                 className="w-full p-2 border rounded"
             />
+            </div>
+
+            <div>
+              <label className="block mb-1">Qualifications:</label>
+              <input
+                type="text"
+                name="qualifications"
+                value={formData.qualifications}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1">Location:</label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1">Certifications:</label>
+              <textarea
+                name="certifications"
+                value={formData.certifications}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                rows={4}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1">Tags:</label>
+              <input
+                type="text"
+                name="tags"
+                value={formData.tags}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1">Contact Info:</label>
+              <input
+                type="text"
+                name="contactInfo"
+                value={formData.contactInfo}
+                onChange={handleInputChange}
+                className="w-full p-2 border rounded"
+                required
+              />
             </div>
 
             <button

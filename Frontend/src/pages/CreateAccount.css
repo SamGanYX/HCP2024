@@ -1,6 +1,6 @@
 /* General container styles */
 .container {
-  display: flex;
+  /* display: flex; */
   flex-direction: row;
   justify-content: space-between;
   padding: 20px;

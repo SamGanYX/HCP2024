@@ -1,0 +1,27 @@
+.login-form-div {
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-container {
+    max-width: 800px;
+}
+.column-l {
+    max-width: 33%;
+}
+.column-r-login {
+    padding: 100px 20px;
+}
+.column-r {
+    padding: 20px;
+}
+
+.column-l, .column-r {
+    flex: 1; /* Allow columns to expand equally */
+}

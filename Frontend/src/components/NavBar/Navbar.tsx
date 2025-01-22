@@ -61,6 +61,9 @@ const Navbar = () => {
                 <NavLink to="/investors">Investors</NavLink>
               </li>
               <li className="navbar-li">
+                <NavLink to="/dashboard">Dashboard</NavLink>
+              </li>
+              <li className="navbar-li">
                 <a onClick={logout} className="log_out">
                   Log out
                 </a>

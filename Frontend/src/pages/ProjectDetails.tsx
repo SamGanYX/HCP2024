@@ -36,7 +36,23 @@ interface Applicant {
   projectID: number;
 }
 
+interface Collaborator {
+  FullName: string;
+  ID: number;
+  username: string;
+}
+
+interface User {
+  ID: number;
+  Username: string;
+  Email: string;
+  userType: string;
+  bio: string;
+  resumePath: string;
+}
+
 const ProjectDetails: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [projectFiles, setProjectFiles] = useState<ProjectFile[]>([]);
@@ -44,6 +60,7 @@ const ProjectDetails: React.FC = () => {
   const [investAmount, setInvestAmount] = useState<number>(0);
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
 
   // Get project ID from URL params
   const projectId = window.location.pathname.split('/').pop();
@@ -51,7 +68,7 @@ const ProjectDetails: React.FC = () => {
   // Get current user from context
   // const { currentUser } = useContext(UserContext);
   const userID = localStorage.getItem("userID");
-
+  
   useEffect(() => {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/projects/${projectId}`)
       .then((response) => {
@@ -66,13 +83,26 @@ const ProjectDetails: React.FC = () => {
       .then((data) => setProjectFiles(data))
       .catch((error) => console.error("Error fetching project files:", error));
 
+
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${project?.userID}`)
+      .then((response) => response.json())
+      .then((data) => setUser(data))
+      .catch((error) => console.error("Error fetching project files:", error));
+
     // Fetch applicants for the project
     fetch(`${import.meta.env.VITE_BACKEND_URL}/projects/${projectId}/applicants`)
       .then((response) => 
         response.json())
       .then((data) => setApplicants(data))
       .catch((error) => console.error("Error fetching applicants:", error));
+
+    // Fetch collaborators for the project
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/projects/${projectId}/collaborators`)
+      .then((response) => response.json())
+      .then((data) => setCollaborators(data))
+      .catch((error) => console.error("Error fetching collaborators:", error));
   }, [projectId]);
+  // console.log(user);
 
   const handleInvest = async () => {
     try {
@@ -93,6 +123,23 @@ const ProjectDetails: React.FC = () => {
     } catch (error) {
       console.error('Error making investment:', error);
       alert('Failed to make investment');
+    }
+  };
+
+  const handleAddCollaborator = async (applicantID: number) => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/collaborators`, {
+        projectID: project?.projectID,
+        userID: applicantID
+      });
+
+      if (response.status === 201) {
+        await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/applicants/${project?.projectID}/${applicantID}`);
+        alert('Applicant added as collaborator successfully and application deleted');
+      }
+    } catch (error) {
+      console.error('Error adding collaborator:', error);
+      alert('Failed to add collaborator');
     }
   };
 
@@ -288,25 +335,50 @@ const ProjectDetails: React.FC = () => {
               </p>
             </div>
           </div>
+
+          {/* Project Owner Section */}
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-4">Project Owner</h2>
+            <p className="text-gray-700">{user?.ID} {user?.Username}</p> {/* Assuming userID is the owner's identifier */}
+          </div>
+
+          {/* Collaborators Section */}
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-4">Collaborators</h2>
+            <ul className="padding-down">
+              {collaborators.map((collaborator, index) => (
+                <li key={index} className="mb-2">
+                  <Link to={`/user/${collaborator.ID}`} className="text-blue-500 hover:underline">
+                    {collaborator.ID} {collaborator.username}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Applicants Section */}
+          {project && project.userID === Number(userID) && (
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold mb-4">Applicants</h2>
+              <ul className="padding-down">
+                {applicants.map((applicant, index) => (
+                  <li key={index} className="mb-2 flex justify-between items-center">
+                    <Link to={`/user/${applicant.userID}`} className="text-blue-500 hover:underline">
+                      {applicant.userID}
+                    </Link>
+                    <button
+                      onClick={() => handleAddCollaborator(applicant.userID)}
+                      className="ml-4 px-2 py-1 bg-green-500 text-white rounded"
+                    >
+                      Add as Collaborator
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Applicants Section */}
-      {project && project.userID === Number(userID) && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-4">Applicants</h2>
-          <ul>
-            {applicants.map((applicant, index) => (
-              <li key={index} className="mb-2">
-                <Link to={`/user/${applicant.userID}`} className="text-blue-500 hover:underline">
-                  {applicant.userID}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
     </div>
   );
 };
