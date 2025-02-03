@@ -9,15 +9,6 @@ const About = () => {
                 <div className="team-member">
                     <h3>DevSync Team</h3>
                 </div>
-                {/* <div className="team-member">
-                    <h3>Daniel Wang</h3>
-                </div>
-                <div className="team-member">
-                    <h3>Leon Sun</h3>
-                </div>
-                <div className="team-member">
-                    <h3>Shulyn Ragland</h3>
-                </div> */}
             </div>
             <h1>About DevSync</h1>
             <p>
