@@ -91,7 +91,7 @@ const CreateAccount = () => {
             alt="Project"
             className="project-image"
           />
-          <h2>Create An Account</h2>
+          <div className="text-wrapper-1">Profile Details</div>
         </div>
           <div className="column-r">
           {TheError && <p>{TheError}</p>}

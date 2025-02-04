@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "MontserratBold";
+  src: url('/src/fonts/Montserrat-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 /* General container styles */
 .container {
   /* display: flex; */
@@ -77,4 +84,17 @@ button:hover {
 .already-have-account {
   margin-top: 20px;
   text-align: center;
+}
+
+.text-wrapper-1 {
+  color: BLACK;
+  font-family: "MontserratBold", sans-serif !important;
+  font-size: 40px;
+  font-weight: 700;
+  left: 172px;
+  letter-spacing: 0;
+  line-height: 60px;
+  position: absolute;
+  top: 142px;
+  width: 1097px;
 }
