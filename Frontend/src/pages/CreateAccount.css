@@ -94,7 +94,7 @@ button:hover {
   left: 172px;
   letter-spacing: 0;
   line-height: 60px;
-  position: absolute;
+  position: top;
   top: 142px;
   width: 1097px;
 }
