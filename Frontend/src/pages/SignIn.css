@@ -1,0 +1,101 @@
+.logo {
+  width: 150px;
+  height: auto;
+  margin-bottom: 1rem; 
+}
+
+/* logo and title */
+.brand-name {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  margin-top: 0;
+}
+
+.brand-dev {
+  color: #40B7C1;
+}
+
+.brand-sync {
+  color: #4169E1;
+  font-style: italic; 
+  font-weight: bold;
+}
+
+/* remaining content */
+.signin-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: white;
+}
+
+.signin-content {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.signin-heading {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.signin-button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+
+.primary-button {
+  background-color: #4169E1;
+  color: white;
+}
+
+.secondary-button {
+  background-color: white;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: #666;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+  padding: 0 10px;
+  font-size: 0.9rem;
+}
+
+.footer-links {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+
+.footer-links a {
+  color: #4169E1;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+} 
