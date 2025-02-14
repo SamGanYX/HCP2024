@@ -15,18 +15,18 @@ const SignIn: React.FC = () => {
           <span className="brand-sync">Sync</span>
         </h1>
         
-        <h2 className="signin-heading">Sign up to continue</h2>
+        <h2 className="signin-heading">Use your UW email to continue</h2>
         
         <button className="signin-button primary-button">
-          Use your UW email
+          Sign up with UW email
         </button>
         
         <div className="divider">
-          <span>or sign in with</span>
+          <span>or</span>
         </div>
         
         <button className="signin-button secondary-button">
-          Continue with UW email
+          Sign in with UW email
         </button>
         
         <div className="footer-links">
