@@ -17,7 +17,7 @@ import AddInvestors from "./pages/AddInvestors";
 import Investors from "./pages/Investors";
 import ProjectDetails from "./pages/ProjectDetails";
 import Dashboard from './pages/Dashboard';
-import SignIn from './pages/SignIn';
+import Landing from './pages/Landing';
 
 const App = () => {
   return (
@@ -25,7 +25,7 @@ const App = () => {
       <BrowserRouter>
         <Navbar></Navbar>
         <Routes>
-          <Route path="/" element={<SignIn />} />
+          <Route path="/" element={<Landing />} />
           {/* Comment out all other routes temporarily
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />

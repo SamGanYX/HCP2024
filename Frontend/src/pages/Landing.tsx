@@ -1,7 +1,7 @@
 import devSyncLogo from '../assets/devsync_logo.webp';
-import './SignIn.css';
+import './landing.css';
 
-const SignIn: React.FC = () => {
+const Landing = () => {
   return (
     <div className="signin-container">
       <div className="signin-content">
@@ -38,4 +38,4 @@ const SignIn: React.FC = () => {
   );
 };
 
-export default SignIn; 
+export default Landing; 
