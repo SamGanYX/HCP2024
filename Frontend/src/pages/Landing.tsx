@@ -31,7 +31,10 @@ const Landing = () => {
           <span>or</span>
         </div>
         
-        <button className="signin-button secondary-button">
+        <button 
+          className="signin-button secondary-button"
+          onClick={() => navigate('/sign-in')}
+        >
           Sign in with UW email
         </button>
         

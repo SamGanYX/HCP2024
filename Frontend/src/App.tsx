@@ -19,6 +19,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
 import Signup from './pages/Signup';
+import SignIn from './pages/SignIn';
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/sign-in" element={<SignIn />} />
           {/* Comment out all other routes temporarily
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
