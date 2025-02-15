@@ -18,6 +18,7 @@ import Investors from "./pages/Investors";
 import ProjectDetails from "./pages/ProjectDetails";
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
+import Signup from './pages/Signup';
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
         <Navbar></Navbar>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/signup" element={<Signup />} />
           {/* Comment out all other routes temporarily
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />

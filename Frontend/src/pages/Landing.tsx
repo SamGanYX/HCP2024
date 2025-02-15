@@ -1,7 +1,10 @@
 import devSyncLogo from '../assets/devsync_logo.webp';
 import './landing.css';
+import { useNavigate } from 'react-router-dom';
 
 const Landing = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="signin-container">
       <div className="signin-content">
@@ -17,7 +20,10 @@ const Landing = () => {
         
         <h2 className="signin-heading">Use your UW email to continue</h2>
         
-        <button className="signin-button primary-button">
+        <button 
+          className="signin-button primary-button"
+          onClick={() => navigate('/signup')}
+        >
           Sign up with UW email
         </button>
         
