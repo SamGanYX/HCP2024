@@ -142,6 +142,18 @@ const CreateAccount = () => {
               placeholder="Enter Bio"
               onChange={(e) => setBio(e.target.value)}
             ></textarea>
+            <label htmlFor="tags">Tags:</label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button type="button" className="tag-btn">
+                Frontend
+              </button>
+              <button type="button" className="tag-btn">
+                Backend
+              </button>
+              <button type="button" className="tag-btn">
+                Full Stack
+              </button>
+            </div>
             <label htmlFor="password">Password:</label>
             <input
               type="password"
