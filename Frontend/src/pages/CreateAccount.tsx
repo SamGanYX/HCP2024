@@ -87,11 +87,11 @@ const CreateAccount = () => {
       <div className="login-form-div" style={{ marginTop: 0, alignItems: 'flex-start' }}>
         <div className="column-l">
           <img
-            src={`/src/assets/bababooey.png`}
+            src={`/src/assets/devsync_logo_nobg.png`}
             alt="Project"
             className="project-image"
           />
-          <h2>Create An Account</h2>
+          <div className="text-wrapper-1">Profile Details</div>
         </div>
           <div className="column-r">
           {TheError && <p>{TheError}</p>}
@@ -142,6 +142,18 @@ const CreateAccount = () => {
               placeholder="Enter Bio"
               onChange={(e) => setBio(e.target.value)}
             ></textarea>
+            <label htmlFor="tags">Tags:</label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button type="button" className="tag-btn">
+                Frontend
+              </button>
+              <button type="button" className="tag-btn">
+                Backend
+              </button>
+              <button type="button" className="tag-btn">
+                Full Stack
+              </button>
+            </div>
             <label htmlFor="password">Password:</label>
             <input
               type="password"
