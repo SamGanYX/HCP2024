@@ -87,7 +87,7 @@ const CreateAccount = () => {
       <div className="login-form-div" style={{ marginTop: 0, alignItems: 'flex-start' }}>
         <div className="column-l">
           <img
-            src={`/src/assets/home.png`}
+            src={`/src/assets/bababooey.png`}
             alt="Project"
             className="project-image"
           />
