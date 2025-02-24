@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Home from "./pages/Home";
@@ -16,28 +17,36 @@ import AddInvestors from "./pages/AddInvestors";
 import Investors from "./pages/Investors";
 import ProjectDetails from "./pages/ProjectDetails";
 import Dashboard from './pages/Dashboard';
+import Landing from './pages/Landing';
+import Signup from './pages/Signup';
+import SignIn from './pages/SignIn';
+
 const App = () => {
   return (
     <div>
       <BrowserRouter>
         <Navbar></Navbar>
         <Routes>
-          <Route index element={<Home />}></Route>
-          <Route path="/home" element={<Home />}></Route>
-          <Route path="/about" element={<About />}></Route>
-          <Route path="/contact" element={<Contact />}></Route>
-          <Route path="/users" element={<Users />}></Route>
-          <Route path="/user/:id" element={<User />}></Route>
+          <Route path="/" element={<Landing />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          {/* Comment out all other routes temporarily
+          <Route path="/home" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/user/:id" element={<User />} />
           <Route path="/investor/:id" element={<InvestorDetails />} />
-          <Route path="/projects_map" element={<Projects />}></Route>
-          <Route path="/login" element={<Login />}></Route>
-          <Route path="/projects" element={<ViewProjects />}></Route>
-          <Route path="/create_account" element={<CreateAccount />}></Route>
-          <Route path="/add_investors" element={<AddInvestors />}></Route>
-          <Route path="/investors" element={<Investors />}></Route>
+          <Route path="/projects_map" element={<Projects />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/projects" element={<ViewProjects />} />
+          <Route path="/create_account" element={<CreateAccount />} />
+          <Route path="/add_investors" element={<AddInvestors />} />
+          <Route path="/investors" element={<Investors />} />
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="*" element={<NoPage />}></Route>
+          <Route path="*" element={<NoPage />} />
+          */}
         </Routes>
       </BrowserRouter>
     </div>
