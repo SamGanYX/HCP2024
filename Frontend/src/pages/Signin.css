@@ -1,0 +1,112 @@
+.signin-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.signin-page-content {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.brand-name {
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+
+.brand-dev {
+  color: #40B3A2;
+}
+
+.brand-sync {
+  color: #4169E1;
+}
+
+.signin-page-heading {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.email-input,
+.password-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.email-input:focus,
+.password-input:focus {
+  outline: none;
+  border-color: #4169E1;
+}
+
+.email-validation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.email-validation.valid {
+  color: #2ecc71;
+}
+
+.email-validation.invalid {
+  color: #e74c3c;
+}
+
+.validation-icon {
+  font-weight: bold;
+}
+
+.continue-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4169E1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.continue-button:hover {
+  background-color: #3154b3;
+}
+
+.continue-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+} 
