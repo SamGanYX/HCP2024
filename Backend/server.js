@@ -83,8 +83,8 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
 });
 
 app.post('/users', upload.single('resume'), (req, res) => {
-    console.log('Received request body:', req.body); // Debug log
-    console.log('Received file:', req.file); // Debug log
+    // console.log('Received request body:', req.body); // Debug log
+    // console.log('Received file:', req.file); // Debug log
 
     const { username, FullName, email, password, userType, bio, skills } = req.body;
     const resumePath = req.file ? req.file.filename : null;
@@ -112,47 +112,33 @@ app.post('/users', upload.single('resume'), (req, res) => {
                 console.error('Error inserting user:', err);
                 return res.status(500).json({ error: err.message });
             }
+            if(result.length !== 0) {
+                return res.status(400).json({ error: "User already exists" });
+            }
+
+            const sql = `
+                INSERT INTO users (username, FullName, email, password, userType, bio, resumePath, skills)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            const values = [username, FullName, email, password, userType, bio, resumePath, skills];
+        
+            connection.query(sql, values, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).json(err);
+                }
+                res.status(201).json({ message: "User created successfully", userID: result.insertId });
+            });
             
             const userId = result.insertId;
             
             // Handle skills if present
-            if (skills) {
-                try {
-                    const parsedSkills = JSON.parse(skills);
-                    if (Array.isArray(parsedSkills) && parsedSkills.length > 0) {
-                        const skillValues = parsedSkills.map(skill => [userId, skill]);
-                        const skillsSQL = "INSERT INTO user_skills (user_id, skill) VALUES ?";
-                        
-                        connection.query(skillsSQL, [skillValues], (skillErr) => {
-                            if (skillErr) {
-                                console.error('Error inserting skills:', skillErr);
-                                // Don't return here, still send success response for user creation
-                            }
-                            res.status(201).json({ 
-                                message: "User and skills created successfully", 
-                                userID: userId 
-                            });
-                        });
-                    } else {
-                        res.status(201).json({ 
-                            message: "User created successfully", 
-                            userID: userId 
-                        });
-                    }
-                } catch (e) {
-                    console.error('Error parsing skills:', e);
-                    res.status(201).json({ 
-                        message: "User created successfully (skills parsing failed)", 
-                        userID: userId 
-                    });
-                }
-            } else {
-                res.status(201).json({ 
-                    message: "User created successfully", 
-                    userID: userId 
-                });
-            }
+            
+            res.status(201).json({ 
+                message: "User created successfully", 
+                userID: userId 
+            });
         });
+
     });
 });
 
