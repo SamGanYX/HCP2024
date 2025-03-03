@@ -12,10 +12,11 @@ RUN npm install
 COPY . .
 
 # Make wait-for.sh executable
-COPY wait-for.sh /wait-for.sh
-RUN chmod +x /wait-for.sh
+# COPY wait-for.sh /wait-for.sh
+# RUN chmod +x /wait-for.sh
 
 EXPOSE 8081
 
 # Use wait-for script before starting the app
-CMD ["/wait-for.sh", "db", "npm", "start"]
+# CMD ["/wait-for.sh", "db", "npm", "start"]
+RUN npm start
