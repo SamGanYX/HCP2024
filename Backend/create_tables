@@ -1,12 +1,13 @@
+CREATE DATABASE IF NOT EXISTS devsync;
+USE devsync;
 DROP TABLE Likes, Matches, projects, project_images, roles, userProjectRoles, users;
 
 CREATE TABLE users ( 
-    ID INT NOT NULL AUTO_INCREMENT, 
-    Username VARCHAR(255) NOT NULL, 
+    ID INT NOT NULL AUTO_INCREMENT,
     Email VARCHAR(255) NOT NULL, 
     Password VARCHAR(255) NOT NULL, 
     userType ENUM('Project Seeker', 'Project Owner', 'Mentor/Advisor') NOT NULL,
-    resumePath VARCHAR(255), -- Path to the uploaded resume
+    /*resumePath VARCHAR(255), -- Path to the uploaded resume*/
     bio TEXT,
     PRIMARY KEY (ID) 
 );

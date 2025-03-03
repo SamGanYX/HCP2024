@@ -1,37 +1,75 @@
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const multer = require('multer');
+const path = require('path');
+
+const PORT = process.env.PORT || 8081;
 
 const app = express();
+
+// Middleware
 app.use(cors({
     origin: ['http://localhost:5173', 'http://frontend:5173'],
     credentials: true
 }));
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
-const multer = require('multer');
-const path = require('path');
+app.use(bodyParser.json());
+
+// Database configuration
+const connection = mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || ' ',
+    database: process.env.DB_NAME || 'devsync',
+    port: parseInt(process.env.DB_PORT) || 3306
+});
+
+// Handle connection errors and reconnection
+function handleDisconnect() {
+    console.log('Attempting to connect to database...');
+    
+    connection.connect((err) => {
+        if (err) {
+            console.error('Error connecting to the database:', err);
+            console.log('Retrying in 2 seconds...');
+            setTimeout(handleDisconnect, 2000);
+            return;
+        }
+        console.log('Connected to the database successfully!');
+    });
+
+    connection.on('error', (err) => {
+        console.error('Database error:', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR') {
+            handleDisconnect();
+        } else {
+            throw err;
+        }
+    });
+}
+
+// Initial database connection
+handleDisconnect();
+
+// Basic route to test server
+app.get('/', (req, res) => {
+    res.json({ message: 'Backend server is running' });
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
 
 const { calculateDiet, adjustDiet, calculateBMR } = require('./src/dietCalculator');
 const { getResponse } = require('./src/Perplexity');
 const { getRecipes } = require('./src/RecipeBot');
 const { getWorkouts } = require('./src/WorkoutBot');
 const { getQuote } = require('./src/MotivationalBot');
-
-const connection = mysql.createConnection({
-    host: 'db',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-});
-
-connection.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
-    }
-    console.log('Connected to the database!');
-});
 
 // Set up multer storage configuration
 const storage = multer.diskStorage({
@@ -49,6 +87,50 @@ const upload = multer({
         fileSize: 50 * 1024 * 1024, // 50MB limit per file
         files: 10 // Maximum 10 files
     }
+});
+
+app.post('/signup', (req, res) => {
+    //console.log("skdjhskdfhs");
+    const { email, password, userType, bio } = req.body;
+
+    console.log('Received email:', email);
+    console.log('Received password:', password);
+
+    // Validate required fields
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Please provide all required fields.' });
+    }
+
+    // Check if user already exists
+    const checkUserSQL = "SELECT * FROM users WHERE Email = ?";
+    connection.query(checkUserSQL, email, (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+        
+        if (result.length > 0) {
+            return res.status(400).json({ message: "mail already exists" });
+        }
+
+        // Insert new user
+        const insertSQL = `
+            INSERT INTO users (Email, Password, userType, bio)
+            VALUES (?, ?, ?, ?)
+        `;
+        const values = [email, password, userType || 'Project Seeker', bio || ''];
+
+        connection.query(insertSQL, values, (err, result) => {
+            if (err) {
+                console.error("Error inserting user:", err);
+                return res.status(500).json({ message: "Error creating user" });
+            }
+            res.status(201).json({ 
+                message: "User created successfully",
+                userId: result.insertId 
+            });
+        });
+    });
 });
 
 app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
@@ -82,6 +164,7 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
     });
 });
 
+
 app.post('/users', upload.single('resume'), (req, res) => {
     const { username, FullName, email, password, userType, bio } = req.body;
     const resumePath = req.file ? req.file.filename : null;
@@ -107,10 +190,9 @@ app.post('/users', upload.single('resume'), (req, res) => {
     });
 });
 
+
 // Static route to serve uploaded images
 app.use('/uploads', express.static('uploads'));
-
-// Rest of your Express setup...
 
 const bcrypt = require('bcryptjs');
 
@@ -119,10 +201,6 @@ const password = "password";
 const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
 // Get
-
-app.get('/', (req, res) => {
-    return res.json("From Backend Side");
-});
 
 app.get('/users', (req, res) => {
     const sql = "SELECT * FROM users;"
@@ -169,7 +247,6 @@ app.get('/userstats/:userID', (req, res) => {
         return res.json(data[0]); // Return the first user stats object
     });
 });
-
 
 // =============== Adding to Table ================ \\
 
@@ -265,7 +342,6 @@ app.post('/delete_projects', (req, res) => {
     });
 });
 
-
 // ========================= Auth ====================== \\
 
 const jwt = require('jsonwebtoken');
@@ -314,15 +390,9 @@ function verifyToken(req, res, next) {
     });
 };
 
-
-
 // Protect a route by applying the middleware
 app.get('/protected', verifyToken, (req, res) => {
     res.status(200).json({ message: 'This is a protected route.' });
-});
-
-app.listen(8081, '0.0.0.0', () => {
-    console.log('Server is running on port 8081');
 });
 
 // Add this after your existing table creation queries
