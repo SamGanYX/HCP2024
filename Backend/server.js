@@ -1,6 +1,8 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 app.use(cors({
@@ -9,8 +11,6 @@ app.use(cors({
 }));
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
-const multer = require('multer');
-const path = require('path');
 
 const { calculateDiet, adjustDiet, calculateBMR } = require('./src/dietCalculator');
 const { getResponse } = require('./src/Perplexity');
@@ -83,27 +83,76 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
 });
 
 app.post('/users', upload.single('resume'), (req, res) => {
-    const { username, FullName, email, password, userType, bio } = req.body;
+    console.log('Received request body:', req.body); // Debug log
+    console.log('Received file:', req.file); // Debug log
+
+    const { username, FullName, email, password, userType, bio, skills } = req.body;
     const resumePath = req.file ? req.file.filename : null;
+    
+    console.log('Processed data:', { username, FullName, email, userType, bio, skills }); // Debug log
+
     const sql1 = "SELECT * FROM users WHERE Username = ?";
     connection.query(sql1, [username], (err, result) => {
-        if(result.length !== 0) {
-            console.log(result);
-            return res.status(500).json("User already exists");
-        } else {
-            const sql = `
-                INSERT INTO users (username, FullName, email, password, userType, bio, resumePath)
-                VALUES (?, ?, ?, ?, ?, ?, ?)`;
-            const values = [username, FullName, email, password, userType, bio, resumePath];
-        
-            connection.query(sql, values, (err, result) => {
-            if (err) {
-                console.log(err);
-                return res.status(500).json(err);
-            }
-            res.status(201).json({ message: "User created successfully", userID: result.insertId });
-            });
+        if(err) {
+            console.error('Error checking username:', err);
+            return res.status(500).json({ error: err.message });
         }
+
+        if(result.length !== 0) {
+            return res.status(400).json({ error: "User already exists" });
+        }
+
+        const sql = `
+            INSERT INTO users (username, FullName, email, password, userType, bio, resumePath)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        const values = [username, FullName, email, password, userType, bio, resumePath];
+    
+        connection.query(sql, values, (err, result) => {
+            if (err) {
+                console.error('Error inserting user:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            const userId = result.insertId;
+            
+            // Handle skills if present
+            if (skills) {
+                try {
+                    const parsedSkills = JSON.parse(skills);
+                    if (Array.isArray(parsedSkills) && parsedSkills.length > 0) {
+                        const skillValues = parsedSkills.map(skill => [userId, skill]);
+                        const skillsSQL = "INSERT INTO user_skills (user_id, skill) VALUES ?";
+                        
+                        connection.query(skillsSQL, [skillValues], (skillErr) => {
+                            if (skillErr) {
+                                console.error('Error inserting skills:', skillErr);
+                                // Don't return here, still send success response for user creation
+                            }
+                            res.status(201).json({ 
+                                message: "User and skills created successfully", 
+                                userID: userId 
+                            });
+                        });
+                    } else {
+                        res.status(201).json({ 
+                            message: "User created successfully", 
+                            userID: userId 
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error parsing skills:', e);
+                    res.status(201).json({ 
+                        message: "User created successfully (skills parsing failed)", 
+                        userID: userId 
+                    });
+                }
+            } else {
+                res.status(201).json({ 
+                    message: "User created successfully", 
+                    userID: userId 
+                });
+            }
+        });
     });
 });
 
@@ -125,11 +174,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
-    const sql = "SELECT * FROM users;"
-    connection.query(sql, (err, data) => {
-        if(err) return res.json(err);
-        return res.json(data);
-    })
+    const sql = "SELECT * FROM users";
+    connection.query(sql, (err, result) => {
+        if (err) {
+            console.error('Error fetching users:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(result);
+    });
 });
 
 app.get('/projects', (req, res) => {
