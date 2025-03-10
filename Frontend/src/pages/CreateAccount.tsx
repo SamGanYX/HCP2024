@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from 'react-router-dom';
 import './CreateAccount.css';
 import './Login.css';
 
 const CreateAccount = () => {
+  const location = useLocation();
   const [Username, setUsername] = useState("");
   const [FullName, setFullName] = useState("");
   const [userType, setUserType] = useState("Project Seeker");
@@ -17,6 +19,13 @@ const CreateAccount = () => {
       .then((res) => res.json())
       .catch((err) => console.log(err));
   }, []);
+
+  useEffect(() => {
+    const email = localStorage.getItem('userEmail') || location.state?.email;
+    if (email) {
+      setEmail(email);
+    }
+  }, [location]);
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

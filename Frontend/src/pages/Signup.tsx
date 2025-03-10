@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import devSyncLogo from '../assets/devsync_logo.webp';
 import './Signup.css';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsValidEmail(email.toLowerCase().endsWith('@uw.edu'));
   }, [email]);
-
-
-
 
   // Handle form submission
   const handleSubmit = async (event: React.FormEvent) => {
@@ -33,7 +32,6 @@ const Signup = () => {
     };
 
     try {
-      // Sending the data to the backend API
       const response = await fetch('http://localhost:8081/signup', {
         method: 'POST',
         headers: {
@@ -45,19 +43,23 @@ const Signup = () => {
       const data = await response.json();
       if (response.ok) {
         console.log('User registered:', data);
-        // Handle success (e.g., redirect or display success message)
+        // Store the email and userId for the create account page
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userId', data.userId.toString());
+        // Use navigate with state
+        navigate('/create_account', { 
+          state: { 
+            email: email,
+            userId: data.userId 
+          } 
+        });
       } else {
         console.error('Signup failed:', data);
-        // Handle error (e.g., show error message)
       }
     } catch (error) {
       console.error('Error submitting the form:', error);
-      // Handle error (e.g., show error message)
     }
-  }
-
-
-
+  };
 
   return (
     <div className="signup-container">
