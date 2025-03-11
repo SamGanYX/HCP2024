@@ -12,8 +12,9 @@ services:
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8081
-    depends_on:
-      - backend
+    # commented out to be able to build the frontend
+    # depends_on:
+    #   - backend
 
   backend:
     build: 
