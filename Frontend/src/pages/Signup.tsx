@@ -14,9 +14,13 @@ const Signup = () => {
     setIsValidEmail(email.toLowerCase().endsWith('@uw.edu'));
   }, [email]);
 
+
+
+
   // Handle form submission
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    console.log('1. Submit started');
 
     if (password !== confirmPassword) {
       console.error('Passwords do not match');
@@ -32,6 +36,7 @@ const Signup = () => {
     };
 
     try {
+      console.log('2. About to send request to:', `${import.meta.env.VITE_BACKEND_URL}/signup`);
       const response = await fetch('http://localhost:8081/signup', {
         method: 'POST',
         headers: {
@@ -41,25 +46,24 @@ const Signup = () => {
       });
 
       const data = await response.json();
+      console.log('3. Response received:', response.status, data);
+      
       if (response.ok) {
-        console.log('User registered:', data);
-        // Store the email and userId for the create account page
-        localStorage.setItem('userEmail', email);
+        console.log('4. Signup successful, attempting navigation');
+        // Store the user ID in localStorage if you need it later
         localStorage.setItem('userId', data.userId.toString());
-        // Use navigate with state
-        navigate('/create_account', { 
-          state: { 
-            email: email,
-            userId: data.userId 
-          } 
-        });
+        // Use navigate instead of window.location.href
+        navigate('/create_account');
+        console.log('5. Navigation attempted');
       } else {
         console.error('Signup failed:', data);
+        // Handle error (e.g., show error message)
       }
     } catch (error) {
-      console.error('Error submitting the form:', error);
+      console.error('Error in handleSubmit:', error);
+      // Handle error (e.g., show error message)
     }
-  };
+  }
 
   return (
     <div className="signup-container">
