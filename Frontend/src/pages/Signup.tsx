@@ -8,13 +8,16 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(false);
+  const [isValidPassword, setIsValidPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setIsValidEmail(email.toLowerCase().endsWith('@uw.edu'));
   }, [email]);
 
-
+  useEffect(() => {
+    setIsValidPassword(password == confirmPassword);
+  }, [confirmPassword]);
 
 
   // Handle form submission
@@ -124,6 +127,21 @@ const Signup = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="password-input"
           />
+          {confirmPassword && (
+            <div className={`password-validation ${isValidPassword ? 'valid' : 'invalid'}`}>
+              {isValidPassword ? (
+                <>
+                  <span className="validation-icon">✓</span>
+                  Passwords match
+                </>
+              ) : (
+                <>
+                  <span className="validation-icon">✕</span>
+                  Passwords do not match
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         <button 
