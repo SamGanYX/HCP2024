@@ -6,9 +6,11 @@ const path = require('path');
 
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://frontend:5173'],
+    origin: 'http://192.227.148.23:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
+app.use(express.json());
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 
@@ -19,10 +21,11 @@ const { getWorkouts } = require('./src/WorkoutBot');
 const { getQuote } = require('./src/MotivationalBot');
 
 const connection = mysql.createConnection({
-    host: 'db',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    host: 'mysql7',
+    user: 'root',
+    password: 'fX5{vP2,eY4',
+    database: 'devSync',
+    ssl: false
 });
 
 connection.connect((err) => {
