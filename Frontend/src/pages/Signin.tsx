@@ -4,7 +4,7 @@ import './Signin.css';
 import { useAuth } from "../AuthContext";
 import { useNavigate } from 'react-router-dom';
 
-const SignIn = () => {
+const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(false);
@@ -84,4 +84,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn; 
+export default Signin; 
