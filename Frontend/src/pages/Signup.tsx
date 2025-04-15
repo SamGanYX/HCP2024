@@ -17,7 +17,7 @@ const Signup = () => {
 
   useEffect(() => {
     setIsValidPassword(password == confirmPassword);
-  }, [confirmPassword]);
+  }, [confirmPassword, password]);
 
 
   // Handle form submission
