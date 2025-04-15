@@ -19,7 +19,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
 import Signup from './pages/Signup';
-import SignIn from './pages/SignIn';
+import SignIn from './pages/Signin';
 
 const App = () => {
   return (
@@ -30,7 +30,6 @@ const App = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/sign-in" element={<SignIn />} />
-          {/* Comment out all other routes temporarily
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
@@ -46,7 +45,6 @@ const App = () => {
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NoPage />} />
-          */}
         </Routes>
       </BrowserRouter>
     </div>
