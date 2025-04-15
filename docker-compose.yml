@@ -30,5 +30,5 @@ services:
 
 networks:
   default:
-      external: true
-      name: devops
+    external: true
+    name: devops
