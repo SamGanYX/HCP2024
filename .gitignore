@@ -26,6 +26,8 @@ dist-ssr
 *.sln
 *.sw?
 /docker-compose.yml
+./docker-compose.yml
+docker-compose.yml
 
 # Logs
 /Frontend/logs
