@@ -25,7 +25,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-docker-compose.yml
+/docker-compose.yml
 
 # Logs
 /Frontend/logs
