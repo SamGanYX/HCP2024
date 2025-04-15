@@ -32,7 +32,8 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/swiping" element={<Swiping />} />
-          {/* Comment out all other routes temporarily
+          {/* 
+          Comment out all other routes temporarily
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
@@ -48,6 +49,7 @@ const App = () => {
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NoPage />} />
+          */} 
         </Routes>
       </BrowserRouter>
     </div>
