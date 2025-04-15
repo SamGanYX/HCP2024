@@ -7,6 +7,7 @@ CREATE TABLE users (
     Password VARCHAR(255) NOT NULL, 
     userType ENUM('Project Seeker', 'Project Owner', 'Mentor/Advisor') NOT NULL,
     resumePath VARCHAR(255), -- Path to the uploaded resume
+    
     bio TEXT,
     PRIMARY KEY (ID) 
 );
@@ -110,6 +111,13 @@ CREATE TABLE collaborators (
     UNIQUE (userId, projectId) -- Prevents duplicate collaborations
 );
 
+CREATE TABLE user_skills (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    skill VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(ID)
+); 
+
 ALTER TABLE investors
 ADD Qualifications VARCHAR(255),
 ADD Location VARCHAR(255),
@@ -118,6 +126,7 @@ ADD Tags TEXT, -- Assuming Tags will be stored as a comma-separated list
 ADD ContactInfo VARCHAR(255);
 
 ALTER TABLE users
+ADD skills TEXT,
 ADD FullName VARCHAR(255);
 
 ALTER TABLE projects

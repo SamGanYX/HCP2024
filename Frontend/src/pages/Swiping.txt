@@ -1,0 +1,68 @@
+.cardContainer {
+    width: 100vw;
+    max-width: 300px;
+    height: 480px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-top: -180px; /* Adjust this value to raise the cards */
+}
+
+
+.card {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    width: 100vw;
+    max-width: 300px;
+    height: 480px;
+    box-shadow: 0px 0px 30px 0px rgba(0,0,0,0.30);
+    border-radius: 20px;
+    background-size: cover;
+    background-position: top;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+}
+
+.card .info-section {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background-color: white;
+    border-radius: 0 0 20px 20px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.card h3 {
+    position: relative;
+    margin: 0;
+    color: #000;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.card .position {
+    color: #666;
+    font-size: 16px;
+}
+
+.swipe:last-of-type {
+
+}
+
+.infoText {
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    color: #fff;
+    animation-name: popup;
+    animation-duration: 800ms;
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react"; 
 import './CreateAccount.css';
 import './Login.css';
 
@@ -11,12 +11,13 @@ const CreateAccount = () => {
   const [Resume, setResume] = useState<File | null>(null);
   const [Bio, setBio] = useState("");
   const [TheError, setError] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
-      .then((res) => res.json())
-      .catch((err) => console.log(err));
-  }, []);
+  // useEffect(() => {
+  //   fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
+  //     .then((res) => res.json())
+  //     .catch((err) => console.log(err));
+  // }, []);
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -24,61 +25,52 @@ const CreateAccount = () => {
     }
   };
 
+  const handleTagClick = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag) 
+        : [...prev, tag]
+    );
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const formData = new FormData();
-    console.log(formData);
-    formData.append('username', Username);
-    formData.append('FullName', FullName);
-    formData.append('email', Email);
-    formData.append('password', Password);
-    formData.append('userType', userType);
-    formData.append('bio', Bio);
-    if (Resume) {
-      formData.append('resume', Resume);
-    }
-
-    console.log(formData);  
     try {
+      const formData = new FormData();
+      formData.append('username', Username);
+      formData.append('FullName', FullName);
+      formData.append('email', Email);
+      formData.append('password', Password);
+      formData.append('userType', userType);
+      formData.append('bio', Bio);
+      if (Resume) {
+        formData.append('resume', Resume);
+      }
+      if (selectedTags && selectedTags.length > 0) {
+        formData.append('skills', JSON.stringify(selectedTags));
+      }
+
+      console.log('Sending data:', Object.fromEntries(formData)); // Debug log
+
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-        method: "POST",
-        body: formData
+        method: 'POST',
+        body: formData,
       });
-      
-      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log("User added successfully:", data);
 
-      // Attempt to log in the user
-      const loginResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: Username,
-          password: Password,
-        }),
-      });
-
-      const loginData = await loginResponse.json();
-      localStorage.setItem("token", loginData.token);
-      localStorage.setItem("userID", loginData.userID);
-      
-      // Redirect to add_investor if userType is Mentor/Advisor, otherwise go to home
-      if (userType === "Mentor/Advisor") {
-        window.location.href = "/add_investors";
-      } else if (userType === "Project Owner") {
-        window.location.href = "/projects_map";
+      const data = await response.json();
+      console.log('Success:', data);
+      window.location.href = '/login';
+    } catch (error: unknown) {
+      console.error('Error:', error);
+      if (error instanceof Error) {
+        setError(error.message);
       } else {
-        window.location.href = "/";
+        setError('An unexpected error occurred');
       }
-    } catch (error) {
-      console.error("Error:", error);
-      setError("Failed to create account, username taken");
     }
   };
 
@@ -87,11 +79,11 @@ const CreateAccount = () => {
       <div className="login-form-div" style={{ marginTop: 0, alignItems: 'flex-start' }}>
         <div className="column-l">
           <img
-            src={`/src/assets/home.png`}
+            src={`/src/assets/devsync_logo_nobg.png`}
             alt="Project"
             className="project-image"
           />
-          <h2>Create An Account</h2>
+          <div className="text-wrapper-1">Profile Details</div>
         </div>
           <div className="column-r">
           {TheError && <p>{TheError}</p>}
@@ -142,6 +134,19 @@ const CreateAccount = () => {
               placeholder="Enter Bio"
               onChange={(e) => setBio(e.target.value)}
             ></textarea>
+            <label htmlFor="tags">Tags:</label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              {["Frontend", "Backend", "Full Stack"].map(tag => (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`tag-btn ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                  onClick={() => handleTagClick(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
             <label htmlFor="password">Password:</label>
             <input
               type="password"
