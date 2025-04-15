@@ -1,0 +1,190 @@
+/* General App Layout */
+.app {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+h2 {
+    font-size: 15px;
+    color: #000000;
+    font-weight: lighter;
+}
+
+.swipe {
+    position: absolute;
+  }
+
+.cardContainer {
+    width: 100vw;
+    max-width: 400px;
+    height: 600px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.card {
+    position: relative;
+    background-color: #fff;
+    width: 100vw;
+    max-width: 400px;
+    height: 550px;  /* Card height */
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Makes the info section stick to the bottom */
+    transition: transform 0.3s ease;
+}
+
+.card h3 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.card .position {
+    color: #777;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Info Section below the Card */
+.card .info-section {
+    width: 100%;
+    background-color: rgba(16, 16, 16, 0.8); /* Semi-transparent background */
+    border-radius: 0 0 20px 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-top: 10px;  /* Adds space between card and info section */
+}
+
+.card .info-section h3 {
+    font-size: 24px;
+    color: #ffffff;
+    text-align: left;  /* Add this line to left-align the name */
+}
+
+.card .info-section .position {
+    font-size: 16px;
+    color: #ffffff;
+    text-align: left;  /* Add this line to left-align the name */
+}
+
+.card .info-section .description {
+    font-size: 12px;
+    color: #ffffff;
+    margin-top: 5px;
+    line-height: 1.4;
+    text-align: left;  /* Align the description to the left */
+    font-weight: lighter;
+    letter-spacing: 0.3px;
+}
+
+.card .info-section .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.card .info-section .tag {
+    display: inline-flex;
+    padding: 4px 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border-radius: 40px;
+    border: 1px solid #FFF;
+    background: rgba(187, 187, 187, 0.2);
+    box-shadow: 6px 6px 10px 0px rgba(120, 132, 149, 0.05);
+    font-size: 11px;
+    color: #ffffff;
+}
+
+/* Button Styling */
+.buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.buttons button {
+    padding: 30px 30px;
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    background-color: #adafbb; /* Tinder's red color */
+    transition: transform 0.2s ease;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.buttons button:hover {
+    transform: scale(1.1);
+}
+
+.buttons .undo {
+    background-color: #c3c4d3;
+}
+
+
+.buttons button img {
+    width: 50px;  /* Adjust size of the button image */
+    height: 50px; /* Adjust size of the button image */
+    object-fit: contain;  /* Ensure the image maintains its aspect ratio */
+  }
+  
+  .buttons button:hover {
+    transform: scale(1.1);
+  }
+
+  .roseButton {
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    background: none;  /* Remove background */
+    border: none;      /* Remove border */
+    padding: 5px;
+    cursor: pointer;   /* Change cursor to pointer */
+    z-index: 10;       /* Ensure it appears above other elements */
+  }
+  
+  .roseButton img {
+    width: 60px;  /* Adjust size as needed */
+    height: 60px; /* Adjust size as needed */
+  }
+
+  .roseButton:hover {
+    transform: scale(1.1);  /* Grow by 10% */
+  }
+  
+/* Flexbox for buttons responsiveness */
+@media (max-width: 625px) {
+    .buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Swiping Animation 
