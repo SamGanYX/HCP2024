@@ -46,14 +46,14 @@ const Navbar = () => {
           {!isAuthenticated ? (
             <>
               <li className="navbar-li">
-                <NavLink to="/login">Log in</NavLink>
-              </li>
-              <li className="navbar-li">
-                <NavLink to="/create_account">Create Account</NavLink>
+                <NavLink to="">Log in / Sign up</NavLink>
               </li>
             </>
           ) : (
             <>
+              <li className="navbar-li">
+                <NavLink to="/swiping">People</NavLink> {/* New Tab */}
+              </li>
               <li className="navbar-li">
                 <NavLink to="/projects">Projects</NavLink> {/* New Tab */}
               </li>
@@ -62,6 +62,9 @@ const Navbar = () => {
               </li>
               <li className="navbar-li">
                 <NavLink to="/dashboard">Dashboard</NavLink>
+              </li>
+              <li className="navbar-li">
+                <NavLink to="/profile_details">Profile Details</NavLink>
               </li>
               <li className="navbar-li">
                 <a onClick={logout} className="log_out">
