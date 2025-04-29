@@ -41,7 +41,7 @@ const App = () => {
           <Route path="/projects_map" element={<Projects />} />
           <Route path="/login" element={<Login />} />
           <Route path="/projects" element={<ViewProjects />} />
-          <Route path="/create_account" element={<CreateAccount />} />
+          <Route path="/profile_details" element={<CreateAccount />} />
           <Route path="/add_investors" element={<AddInvestors />} />
           <Route path="/investors" element={<Investors />} />
           <Route path="/project/:id" element={<ProjectDetails />} />

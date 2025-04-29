@@ -1,23 +1,16 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import './CreateAccount.css';
 import './Login.css';
+import { useNavigate } from 'react-router-dom';
 
-const CreateAccount = () => {
-  const [Username, setUsername] = useState("");
+const UpdateProfile = () => {
   const [FullName, setFullName] = useState("");
   const [userType, setUserType] = useState("Project Seeker");
-  const [Email, setEmail] = useState("");
-  const [Password, setPassword] = useState("");
   const [Resume, setResume] = useState<File | null>(null);
   const [Bio, setBio] = useState("");
   const [TheError, setError] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
-  // useEffect(() => {
-  //   fetch(`${import.meta.env.VITE_BACKEND_URL}/users`)
-  //     .then((res) => res.json())
-  //     .catch((err) => console.log(err));
-  // }, []);
+  const navigate = useNavigate();
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -36,34 +29,38 @@ const CreateAccount = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const formData = new FormData();
-      formData.append('username', Username);
-      formData.append('FullName', FullName);
-      formData.append('email', Email);
-      formData.append('password', Password);
-      formData.append('userType', userType);
-      formData.append('bio', Bio);
-      if (Resume) {
-        formData.append('resume', Resume);
-      }
-      if (selectedTags && selectedTags.length > 0) {
-        formData.append('skills', JSON.stringify(selectedTags));
+      // Retrieve the email from localStorage (used as the unique identifier for the user)
+      const email = localStorage.getItem('email');
+      if (!email) {
+        throw new Error('Email not found in session');
       }
 
-      console.log('Sending data:', Object.fromEntries(formData)); // Debug log
+      const formData = new FormData();
+      formData.append('email', email); // Ensure email is included to identify the user
+      if (FullName) formData.append('FullName', FullName);
+      if (userType) formData.append('userType', userType);
+      if (Bio) formData.append('bio', Bio);
+      if (Resume) formData.append('resume', Resume);
+      if (selectedTags && selectedTags.length > 0) {
+        formData.append('tags', JSON.stringify(selectedTags));
+      }
+
+      console.log('Updating data:', Object.fromEntries(formData)); // Debug log
 
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-        method: 'POST',
+        method: 'PUT', // Use PUT or PATCH to indicate updating an existing resource
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
       }
 
       const data = await response.json();
       console.log('Success:', data);
-      window.location.href = '/login';
+      navigate('/dashboard'); // Redirect to the dashboard or another appropriate page
     } catch (error: unknown) {
       console.error('Error:', error);
       if (error instanceof Error) {
@@ -83,28 +80,16 @@ const CreateAccount = () => {
             alt="Project"
             className="project-image"
           />
-          <div className="text-wrapper-1">Profile Details</div>
+          <div className="text-wrapper-1">Update Profile</div>
         </div>
-          <div className="column-r">
+        <div className="column-r">
           {TheError && <p>{TheError}</p>}
           <form onSubmit={handleSubmit}>
-            <input
-              id="userName"
-              type="text"
-              placeholder="Enter Username"
-              onChange={(e) => setUsername(e.target.value)}
-            />
             <input
               id="fullName"
               type="text"
               placeholder="Enter full name"
               onChange={(e) => setFullName(e.target.value)}
-            />
-            <input
-              id="email"
-              type="text"
-              placeholder="Enter Email"
-              onChange={(e) => setEmail(e.target.value)}
             />
             <div className="form-group-calorie-form">
               <label htmlFor="userType">User Type:</label>
@@ -113,7 +98,6 @@ const CreateAccount = () => {
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
                 className="form-control"
-                required
               >
                 <option value="Project Seeker">Project Seeker</option>
                 <option value="Project Owner">Project Owner</option>
@@ -147,25 +131,14 @@ const CreateAccount = () => {
                 </button>
               ))}
             </div>
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              name="Password"
-              id="Password"
-              placeholder="Enter Password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
             <button type="submit" className="btn btn-primary">
-              Create account
+              Update Profile
             </button>
           </form>
-          <div className="already-have-account">
-            <p>Already Have An Account? <a href="/login">Log In</a></p>
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default CreateAccount;
+export default UpdateProfile;
