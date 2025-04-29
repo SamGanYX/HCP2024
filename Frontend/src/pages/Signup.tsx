@@ -9,6 +9,7 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isValidEmail, setIsValidEmail] = useState(false);
+  const [isValidPassword, setIsValidPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -16,6 +17,10 @@ const Signup = () => {
   useEffect(() => {
     setIsValidEmail(email.toLowerCase().endsWith('@uw.edu'));
   }, [email]);
+
+  useEffect(() => {
+    setIsValidPassword(password == confirmPassword);
+  }, [confirmPassword, password]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +133,6 @@ const Signup = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="password-input"
-              required
             />
           </div>
 
@@ -139,10 +143,24 @@ const Signup = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="password-input"
-              required
             />
+            {confirmPassword && (
+              <div className={`password-validation ${isValidPassword ? 'valid' : 'invalid'}`}>
+                {isValidPassword ? (
+                  <>
+                    <span className="validation-icon">✓</span>
+                    Passwords match
+                  </>
+                ) : (
+                  <>
+                    <span className="validation-icon">✕</span>
+                    Passwords do not match
+                  </>
+                )}
+              </div>
+            )}
           </div>
-
+          
           <button 
             className="continue-button"
             disabled={!isValidEmail || !password || !confirmPassword}
