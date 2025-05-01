@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, BrowserRouter, NavLink, Router, Route } from "react-router-dom";
+import { Link, BrowserRouter, NavLink, Router, Route, useLocation } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 
 import "./Navbar.css";
@@ -11,6 +11,9 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated, login, logout, token } = useAuth();
   console.log(useAuth());
+  //get current path
+  const location = useLocation();
+  const currentPath = location.pathname;
   // const [Data, setData] = useState<DataItem[]>([]);
   const userID = localStorage.getItem("userID");
   // console.log(userID);
@@ -45,9 +48,16 @@ const Navbar = () => {
           </li>
           {!isAuthenticated ? (
             <>
-              <li className="navbar-li">
-                <NavLink to="">Log in / Sign up</NavLink>
-              </li>
+              {currentPath !== "/sign-in" && (
+                <li className="navbar-li">
+                  <NavLink to="/sign-in">Sign in</NavLink>
+                </li>
+              )}
+              {currentPath != "/signup" && (
+                <li className="navbar-li">
+                  <NavLink to="/signup">Sign up</NavLink>
+                </li>
+              )}
             </>
           ) : (
             <>
