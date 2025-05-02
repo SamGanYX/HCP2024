@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, BrowserRouter, NavLink, Router, Route, useLocation } from "react-router-dom";
+import { Link, BrowserRouter, NavLink, Router, Route } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 
 import "./Navbar.css";
@@ -11,9 +11,6 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated, login, logout, token } = useAuth();
   console.log(useAuth());
-  //get current path
-  const location = useLocation();
-  const currentPath = location.pathname;
   // const [Data, setData] = useState<DataItem[]>([]);
   const userID = localStorage.getItem("userID");
   // console.log(userID);
@@ -44,37 +41,73 @@ const Navbar = () => {
         </div>
         <ul className={menuOpen ? "open" : ""}>
           <li className="navbar-li">
-            <NavLink to="/about">About</NavLink>
+            <NavLink
+              to="/about"
+              style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+            >
+              About
+            </NavLink>
           </li>
           {!isAuthenticated ? (
             <>
-              {currentPath !== "/sign-in" && (
-                <li className="navbar-li">
-                  <NavLink to="/sign-in">Sign in</NavLink>
-                </li>
-              )}
-              {currentPath != "/signup" && (
-                <li className="navbar-li">
-                  <NavLink to="/signup">Sign up</NavLink>
-                </li>
-              )}
+              <li className="navbar-li">
+                <NavLink
+                  to="/sign-in"
+                  style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+                >
+                  Sign in
+                </NavLink>
+              </li>
+              <li className="navbar-li">
+                <NavLink
+                  to="/signup"
+                  style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+                >
+                  Sign up
+                </NavLink>
+              </li>
             </>
           ) : (
             <>
               <li className="navbar-li">
-                <NavLink to="/swiping">People</NavLink> {/* New Tab */}
+                <NavLink
+                  to="/swiping"
+                  style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+                >
+                  People
+                </NavLink>
               </li>
               <li className="navbar-li">
-                <NavLink to="/projects">Projects</NavLink> {/* New Tab */}
+                <NavLink
+                  to="/projects"
+                  style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+                >
+                  Projects
+                </NavLink>
               </li>
               <li className="navbar-li">
-                <NavLink to="/investors">Investors</NavLink>
+                <NavLink
+                  to="/investors"
+                  style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+                >
+                  Investors
+                </NavLink>
               </li>
               <li className="navbar-li">
-                <NavLink to="/dashboard">Dashboard</NavLink>
+                <NavLink
+                  to="/dashboard"
+                  style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+                >
+                  Dashboard
+                </NavLink>
               </li>
               <li className="navbar-li">
-                <NavLink to="/profile_details">Profile Details</NavLink>
+                <NavLink
+                  to="/profile_details"
+                  style={({ isActive }) => (isActive ? { color: "#4169E1", fontWeight: "bold" } : {})}
+                >
+                  Edit Profile
+                </NavLink>
               </li>
               <li className="navbar-li">
                 <a onClick={logout} className="log_out">
