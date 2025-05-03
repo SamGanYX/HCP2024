@@ -3,7 +3,7 @@ import './CreateAccount.css';
 import './Login.css';
 import { useNavigate } from 'react-router-dom';
 
-const UpdateProfile = () => {
+const CreateProfile = () => { //changed from UpdateProfile
   const [FullName, setFullName] = useState("");
   const [userType, setUserType] = useState("Project Seeker");
   const [Resume, setResume] = useState<File | null>(null);
@@ -141,4 +141,4 @@ const UpdateProfile = () => {
   );
 };
 
-export default UpdateProfile;
+export default CreateProfile;

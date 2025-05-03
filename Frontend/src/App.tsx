@@ -4,6 +4,7 @@ import "./App.css";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import CreateProfile from './pages/Profile';
 import NoPage from "./pages/NoPage";
 import Users from "./pages/Users";
 import Projects from "./pages/Projects";
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/create_profile" element={<CreateProfile />}></Route>
           <Route path="/users" element={<Users />} />
           <Route path="/user/:id" element={<User />} />
           <Route path="/investor/:id" element={<InvestorDetails />} />

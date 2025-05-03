@@ -30,6 +30,45 @@ const Signup = () => {
       return;
     }
 
+
+    /* FROM OTHER BRANCH */
+    
+    // try {
+    //   console.log('2. About to send request to:', `${import.meta.env.VITE_BACKEND_URL}/signup`);
+    //   const response = await fetch('http://localhost:8081/signup', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(userData), // Send the email and password data to the backend
+    //   });
+
+    //   const data = await response.json();
+    //   console.log('3. Response received:', response.status, data);
+      
+    //   if (response.ok) {
+    //     console.log('4. Signup successful, attempting navigation');
+    //     // Store the user ID in localStorage if you need it later
+    //     localStorage.setItem('userId', data.userId.toString());
+    //     // Use navigate instead of window.location.href
+    //     navigate('/create_account');
+    //     console.log('5. Navigation attempted');
+    //   } else {
+    //     console.error('Signup failed:', data);
+    //     // Handle error (e.g., show error message)
+    //   }
+    // } catch (error) {
+    //   console.error('Error in handleSubmit:', error);
+    //   // Handle error (e.g., show error message)
+    // }
+
+
+
+
+
+
+
+
     try {
       const formData = new FormData();
       formData.append('email', email);
@@ -74,7 +113,7 @@ const Signup = () => {
       login(loginData.token);
       
       // Redirect to dashboard
-      navigate('/dashboard');
+      navigate('/profile_details');
     } catch (error) {
       console.error('Error:', error);
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
@@ -163,6 +202,7 @@ const Signup = () => {
           
           <button 
             className="continue-button"
+            onClick={handleSubmit}
             disabled={!isValidEmail || !password || !confirmPassword}
             type="submit"
           >
