@@ -11,10 +11,24 @@ const UpdateProfile = () => {
   const [TheError, setError] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const navigate = useNavigate();
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>('/src/assets/devsync_logo_nobg.png');
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setResume(e.target.files[0]);
+    }
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhoto(file);
+      const reader = new FileReader(); 
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result.toString());
+      }
+      reader.readAsDataURL(file);
     }
   };
 
@@ -41,6 +55,7 @@ const UpdateProfile = () => {
       if (userType) formData.append('userType', userType);
       if (Bio) formData.append('bio', Bio);
       if (Resume) formData.append('resume', Resume);
+      if (photo) formData.append('photo', photo);
       if (selectedTags && selectedTags.length > 0) {
         formData.append('tags', JSON.stringify(selectedTags));
       }
@@ -75,13 +90,30 @@ const UpdateProfile = () => {
     <div className="container">
       <div className="login-form-div" style={{ marginTop: 0, alignItems: 'flex-start' }}>
         <div className="column-l">
-          <img
-            src={`/src/assets/devsync_logo_nobg.png`}
-            alt="Project"
-            className="project-image"
+          <label htmlFor="photo-upload" style={{ cursor: 'pointer' }}>
+            <img
+              src={photoPreview}
+              alt="Profile"
+              className="project-image"
+              style={{
+                width: '240px',
+                height: '240px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid #ccc'
+              }}
+            />
+          </label>
+          <input
+            id="photo-upload"
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            style={{ display: 'none' }}
           />
-          <div className="text-wrapper-1">Update Profile</div>
+          <div className="text-wrapper-1">Edit Profile</div>
         </div>
+  
         <div className="column-r">
           {TheError && <p>{TheError}</p>}
           <form onSubmit={handleSubmit}>
@@ -104,7 +136,7 @@ const UpdateProfile = () => {
                 <option value="Mentor/Advisor">Mentor/Advisor</option>
               </select>
             </div>
-
+  
             <label htmlFor="resume">Resume:</label>
             <input
               id="resume"
@@ -112,12 +144,14 @@ const UpdateProfile = () => {
               accept=".pdf,.doc,.docx"
               onChange={handleResumeChange}
             />
+  
             <label htmlFor="bio">Short Bio:</label>
             <textarea
               id="bio"
               placeholder="Enter Bio"
               onChange={(e) => setBio(e.target.value)}
             ></textarea>
+  
             <label htmlFor="tags">Tags:</label>
             <div style={{ display: "flex", gap: "8px" }}>
               {["Frontend", "Backend", "Full Stack"].map(tag => (
@@ -132,13 +166,14 @@ const UpdateProfile = () => {
               ))}
             </div>
             <button type="submit" className="btn btn-primary">
-              Update Profile
+              Edit Profile
             </button>
           </form>
         </div>
       </div>
     </div>
-  );
+  );  
+  
 };
 
 export default UpdateProfile;
