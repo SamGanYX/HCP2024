@@ -165,9 +165,8 @@ nav .menu span {
         margin: 0.2rem 0.5rem;
     }
 
-    /* Mobile categories toggle */
     .category-toggle {
-        display: block; /* Show toggle button on mobile */
+        display: block;
     }
 
     .categories {
@@ -177,6 +176,7 @@ nav .menu span {
     }
 
     .categories.categories-open {
-        display: flex; /* Show categories when open on mobile */
+        display: flex; 
     }
+      
 }
