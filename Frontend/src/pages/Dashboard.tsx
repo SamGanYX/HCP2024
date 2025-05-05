@@ -6,10 +6,13 @@ import './Dashboard.css';
 
 interface User {
   ID: number;
-  Username: string;
+  FullName: string;
   Email: string;
   userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor';
   bio?: string;
+  tags?: string[];
+  resumePath?: string;
+
 }
 
 interface Project {
@@ -45,22 +48,40 @@ const Dashboard: React.FC = () => {
   const userID = localStorage.getItem("userID");
   const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!userID) {
+        console.error('No userID found in localStorage');
+        navigate('/auth');
+        return;
+      }
+
       try {
         // Replace with your actual API endpoint
         const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userID}`);
         setUser(userResponse.data);
 
+         // Parse tags inline before updating the state
+        const parsedUser = {
+          ...userResponse.data,
+          tags: typeof userResponse.data.tags === 'string' 
+          ? JSON.parse(userResponse.data.tags).join(', ') : userResponse.data.tags,
+        };
+
+        setUser(parsedUser);
+
         // Fetch additional data based on user type
         const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects/user/${userID}`);
         setProjects(projectsResponse.data);
         if (userResponse.data.userType === 'Mentor/Advisor') {
-          const investorResponse = await axios.get(`/api/investors/${userResponse.data.ID}`);
+          const investorResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/investors/${userResponse.data.ID}`);
           setInvestorInfo(investorResponse.data);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        setError('Failed to load dashboard data');
       }
     };
 
@@ -70,7 +91,7 @@ const Dashboard: React.FC = () => {
       .catch((error) => console.error("Error fetching project images:", error));
 
     fetchUserData();
-  }, []);
+  }, [userID, navigate]);
 
   const isImageFile = (filename: string): boolean => {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
@@ -80,11 +101,28 @@ const Dashboard: React.FC = () => {
 
   const renderUser = () => (
     <div className="dashboard-content">
-      <h2>Welcome, {user?.Username}</h2>
+      <h2>Welcome, {user?.FullName}</h2>
       <div className="user-info">
         <h3>Your Profile</h3>
-        <p>Email: {user?.Email}</p>
-        <p>Bio: {user?.bio || 'No bio added yet'}</p>
+        <p><strong>Full Name:</strong> {user?.FullName || 'Not provided yet'}</p>
+        <p><strong>Email:</strong> {user?.Email}</p>
+        <p><strong>User Type:</strong> {user?.userType || 'Not specified'}</p>
+        <p><strong>Bio:</strong> {user?.bio || 'No bio added yet'}</p>
+        <p><strong>Tags:</strong> {user?.tags || 'No tags selected'}</p>
+        {user?.resumePath ? (
+          <p>
+            <strong>Resume:</strong> 
+            <a 
+              href={`${import.meta.env.VITE_BACKEND_URL}/uploads/${user.resumePath}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              View Resume
+            </a>
+          </p>
+        ) : (
+          <p><strong>Resume:</strong> Not uploaded yet</p>
+        )}
       </div>
       {/* Add matched projects, liked projects, etc. */}
     </div>

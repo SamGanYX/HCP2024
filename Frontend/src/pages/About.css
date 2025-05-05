@@ -1,82 +1,135 @@
-/* Main container for the about section */
 .about-container {
-    max-width: 1000px; /* Wider maximum width for a more spacious layout */
-    margin: 30px auto; /* Center the container */
-    padding: 40px; /* Increased padding for a spacious feel */
-    background-color: #ffffff; /* Clean white background for a modern look */
-    border-radius: 12px; /* More rounded corners for elegance */
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Deeper shadow for a floating effect */
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 40px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
 /* Heading styling */
 .about-container h1, h2 {
-    color: #2c3e50; /* Darker, more refined text for headings */
-    margin-bottom: 25px; /* Increased spacing below headings */
-    letter-spacing: 1.5px; /* Increase letter spacing for a more polished look */
-    text-align: center; /* Centered headings */
+    color: #2c3e50;
+    margin-bottom: 25px;
+    letter-spacing: 1.5px;
+    text-align: center;
 }
 
 /* Paragraph styling */
 p {
-    line-height: 1.75; /* Improved line height for better readability */
-    color: #34495e; /* Softer dark color for text */
-    margin-bottom: 20px; /* Spacing below paragraphs */
-    text-align: justify; /* Justify text for a cleaner look */
+    line-height: 1.75;
+    color: #34495e;
+    margin-bottom: 20px;
+    text-align: justify;
+    text-align: center;
 }
 
 /* Team members layout */
 .team-members {
-    display: flex; /* Flexbox for team members layout */
-    flex-wrap: wrap; /* Allow wrapping to next line */
-    gap: 30px; /* Increased space between members for a cleaner layout */
-    justify-content: center; /* Center team members */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
     margin: 40px;
 }
 
 /* Individual team member styling */
 .team-member {
-    flex: 1 1 calc(25% - 30px); /* Responsive layout with gap accounted */
-    padding: 25px; /* Increased padding for individual member blocks */
-    background-color: #f0f4f8; /* Soft light background */
-    border-radius: 12px; /* Rounded corners for a sophisticated look */
-    text-align: center; /* Center text */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition effect */
+    flex: 1 1 calc(25% - 30px);
+    padding: 25px;
+    background-color: #f0f4f8;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Hover effect for team members */
 .team-member:hover {
-    transform: translateY(-6px); /* Lift effect on hover for interactivity */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+    transform: translateY(-6px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Link styling */
-a {
-    color: #2980b9; /* More refined link color */
-    text-decoration: none; /* Remove underline */
-    font-weight: 600; /* Slightly bolder links */
-    transition: color 0.3s ease; /* Smooth transition for link color */
-}
-
-a:hover {
-    text-decoration: underline; /* Underline on hover for better interaction */
-    color: #1c6696; /* Darker shade on hover */
-}
-
-/* Additional styling for sections */
-.section-divider {
-    width: 100%; /* Full width for dividers */
-    height: 2px; /* Height of the divider */
-    background-color: #2980b9; /* Accent color for dividers */
-    margin: 40px 0; /* Spacing above and below the divider */
-}
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .team-member {
-        flex: 1 1 calc(50% - 30px); /* Stack two team members on smaller screens */
+        flex: 1 1 calc(50% - 30px); 
     }
     h1 {
-        font-size: 2rem; /* Adjust heading size for smaller screens */
+        font-size: 2rem;
     }
+}
+
+.team-member-photo {
+    width: 150px;         
+    height: 150px;         
+    object-fit: cover;     
+    border-radius: 12px;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+.higher-up-photo {
+    width: 150px;     
+    height: 150px;        
+    object-fit: cover;  
+    object-position: 50% 12%;
+    border-radius: 12px;   
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.team-member p {
+    text-align: center;
+    margin: 0;
+}
+
+.about-footer p{
+    text-align: center;
+}
+
+.section-title {
+    padding-top: 20px;
+    font-size: 1.7rem;
+    font-weight: bold;
+}
+
+.steps-list { 
+    width: fit-content;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.steps-list .step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.step{
+    color: #40B7C1;
+
+}
+
+.steps-list p {
+    margin: 0; 
+    text-align: left;
+}
+
+.step {
+    margin-bottom: 12px;
+    color: #40B7C1;
+}
+
+.step-number {
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    color: #40B7C1;
+    margin-right: 10px; 
+    min-width: 30px;  
+  }
+
+.mission-points {
+    list-style-position: inside;  
+    width: fit-content;
+    margin: 0 auto;
+    text-align: left;
+    padding: 0;
 }

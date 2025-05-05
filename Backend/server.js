@@ -83,13 +83,13 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
 });
 
 app.post('/users', upload.single('resume'), (req, res) => {
-    // console.log('Received request body:', req.body); // Debug log
-    // console.log('Received file:', req.file); // Debug log
-
-    const { username, FullName, email, password, userType, bio, skills } = req.body;
+    console.log('Received request body:', req.body);
+    console.log('Received file:', req.file);
+    
+    const { username, FullName, email, password, userType, bio, tags } = req.body;
     const resumePath = req.file ? req.file.filename : null;
     
-    console.log('Processed data:', { username, FullName, email, userType, bio, skills }); // Debug log
+    console.log('Processed data:', { username, FullName, email, userType, bio, tags });
 
     const sql1 = "SELECT * FROM users WHERE Username = ?";
     connection.query(sql1, [username], (err, result) => {
@@ -103,42 +103,35 @@ app.post('/users', upload.single('resume'), (req, res) => {
         }
 
         const sql = `
-            INSERT INTO users (username, FullName, email, password, userType, bio, resumePath)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        const values = [username, FullName, email, password, userType, bio, resumePath];
+            INSERT INTO users (username, FullName, email, password, userType, bio, resumePath, tags)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        // Generate username from email by removing @ and domain
+        const usernameFromEmail = email.split('@')[0];
+        const values = [usernameFromEmail, FullName, email, password, userType, bio, resumePath, tags];
     
+        console.log('Executing SQL with values:', values);
+        
         connection.query(sql, values, (err, result) => {
             if (err) {
                 console.error('Error inserting user:', err);
-                return res.status(500).json({ error: err.message });
-            }
-            if(result.length !== 0) {
-                return res.status(400).json({ error: "User already exists" });
+                console.error('SQL Error:', err.sqlMessage);
+                console.error('SQL State:', err.sqlState);
+                console.error('Error Code:', err.code);
+                return res.status(500).json({ 
+                    error: err.message,
+                    sqlMessage: err.sqlMessage,
+                    sqlState: err.sqlState,
+                    code: err.code
+                });
             }
 
-            const sql = `
-                INSERT INTO users (username, FullName, email, password, userType, bio, resumePath, skills)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-            const values = [username, FullName, email, password, userType, bio, resumePath, skills];
-        
-            connection.query(sql, values, (err, result) => {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).json(err);
-                }
-                res.status(201).json({ message: "User created successfully", userID: result.insertId });
-            });
-            
             const userId = result.insertId;
-            
-            // Handle skills if present
             
             res.status(201).json({ 
                 message: "User created successfully", 
                 userID: userId 
             });
         });
-
     });
 });
 
@@ -668,6 +661,7 @@ app.get('/projects/:id/collaborators', (req, res) => {
     });
 });
 
+
 const matching = require('./matching');
 
 // Get matches for a user
@@ -751,3 +745,27 @@ app.get('/api/right-swipes',  async (req, res) => { // Replace 'authenticate' wi
         });
     }
 });
+
+app.put('/users', upload.single('resume'), async (req, res) => {
+    const { email, FullName, userType, bio, tags } = req.body;
+    const resumePath = req.file ? req.file.filename : null;
+  
+    try {
+      // Update user information in the database
+      const sql = `
+        UPDATE users
+        SET FullName = ?, userType = ?, bio = ?, resumePath = ?, tags = ?
+        WHERE email = ?`;
+      const values = [FullName, userType, bio, resumePath, tags, email];
+  
+      const [result] = await connection.promise().query(sql, values);
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      res.status(200).json({ message: "Profile updated successfully" });
+    } catch (err) {
+      console.error('Error updating user:', err);
+      res.status(500).json({ error: err.message });
+    }
+  });

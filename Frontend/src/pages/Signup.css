@@ -70,7 +70,7 @@
   border-color: #4169E1;
 }
 
-.email-validation {
+.email-validation, .password-validation {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -78,11 +78,11 @@
   font-size: 0.9rem;
 }
 
-.email-validation.valid {
+.email-validation.valid, .password-validation.valid {
   color: #2ecc71;
 }
 
-.email-validation.invalid {
+.email-validation.invalid, .password-validation.invalid {
   color: #e74c3c;
 }
 
