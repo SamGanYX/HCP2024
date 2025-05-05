@@ -139,3 +139,57 @@ ADD ContactInfo VARCHAR(255);
 
 ALTER TABLE projects
 ADD category VARCHAR(255);
+
+DROP TABLE IF EXISTS user_swipes;
+CREATE TABLE user_swipes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    swiped_user_id INT NOT NULL,
+    swipe_type ENUM('left', 'right') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(ID),
+    FOREIGN KEY (swiped_user_id) REFERENCES users(ID),
+    UNIQUE KEY unique_swipe (user_id, swiped_user_id)
+);
+
+
+CREATE PROCEDURE create_match(IN user1_id INT, IN user2_id INT)
+BEGIN
+    -- Check if both users have swiped right on each other
+    DECLARE user1_swiped_right BOOLEAN;
+    DECLARE user2_swiped_right BOOLEAN;
+    
+    SELECT JSON_CONTAINS(swipe_right, CAST(user2_id AS JSON)) INTO user1_swiped_right
+    FROM user_swipes WHERE user_id = user1_id;
+    
+    SELECT JSON_CONTAINS(swipe_right, CAST(user1_id AS JSON)) INTO user2_swiped_right
+    FROM user_swipes WHERE user_id = user2_id;
+    
+    -- If both have swiped right, add them to each other's matched array
+    IF user1_swiped_right AND user2_swiped_right THEN
+        -- Add user2 to user1's matched array if not already there
+        UPDATE user_swipes 
+        SET matched = IF(
+            JSON_CONTAINS(matched, CAST(user2_id AS JSON)),
+            matched,
+            JSON_ARRAY_APPEND(matched, '$', user2_id)
+        ),
+        updated_at = NOW()
+        WHERE user_id = user1_id;
+        
+        -- Add user1 to user2's matched array if not already there
+        UPDATE user_swipes 
+        SET matched = IF(
+            JSON_CONTAINS(matched, CAST(user1_id AS JSON)),
+            matched,
+            JSON_ARRAY_APPEND(matched, '$', user1_id)
+        ),
+        updated_at = NOW()
+        WHERE user_id = user2_id;
+        
+        SELECT TRUE AS match_created;
+    ELSE
+        SELECT FALSE AS match_created;
+    END IF;
+END //
+
