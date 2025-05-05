@@ -56,7 +56,7 @@ const db: Character[] = [
     name: 'Dinesh Chugtai', 
     url: dineshImg,
     position: 'Startup Incubator',
-    tags: ['Bouldering', 'Data Science', 'Entrepenuer'],
+    tags: ['Bouldering', 'Data Science', 'Entrepenuer', 'boppy'],
     description: 'An ambitious entrepreneur with a deep interest in data science and climbing.'
   },
 ];
@@ -79,9 +79,34 @@ const Swiping: React.FC = () => {
   const canGoBack = currentIndex < db.length - 1;
   const canSwipe = currentIndex >= 0;
 
-  const swiped = (direction: string, nameToDelete: string, index: number): void => {
+  const swiped = async (direction: string, swiped: string, index: number): Promise<void> => {
     setLastDirection(direction);
     updateCurrentIndex(index - 1);
+  
+    if (direction === 'right') {
+      console.log(`You swiped right on ${swiped}`);
+  
+      // Send request to backend to record the swipe
+      try {
+        const response = await fetch('/api/swipe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            swipedUserID: "currenrt", // Replace with actual current user from login info
+            swipeType: direction,
+          }),
+        });
+  
+        const data = await response.json();
+        if (data.match) {
+          alert(`You matched with ${swiped}!`);
+        }
+      } catch (error) {
+        console.error('Error sending swipe data:', error);
+      }
+    }
   };
 
   const outOfFrame = (name: string, idx: number): void => {
