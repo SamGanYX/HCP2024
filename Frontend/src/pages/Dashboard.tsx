@@ -109,6 +109,41 @@ const Dashboard: React.FC = () => {
     fetchUserData();
   }, [userID, navigate]);
 
+  useEffect(() => {
+    if (matches.length === 0) {
+      const mockMatches: Match[] = [
+        {
+          ID: 1,
+          FullName: "Jane Smith",
+          Email: "janesmith@uw.edu",
+          userType: "Project Seeker",
+          profileImage: undefined,
+          matchDate: "2023-11-15",
+          status: "Pending"
+        },
+        {
+          ID: 2,
+          FullName: "John Doe",
+          Email: "johndoe@uw.edu",
+          userType: "Project Owner",
+          profileImage: undefined,
+          matchDate: "2023-11-14",
+          status: "Accepted"
+        },
+        {
+          ID: 3,
+          FullName: "Alex Johnson",
+          Email: "alexjohnson@uw.edu",
+          userType: "Project Seeker",
+          profileImage: undefined,
+          matchDate: "2023-11-13",
+          status: "Rejected"
+        }
+      ];
+      setMatches(mockMatches);
+    }
+  }, [matches]);
+
   const isImageFile = (filename: string): boolean => {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
     const extension = filename.split('.').pop()?.toLowerCase() || '';
