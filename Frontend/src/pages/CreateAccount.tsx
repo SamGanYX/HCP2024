@@ -24,7 +24,7 @@ const UpdateProfile = () => {
     const file = e.target.files?.[0];
     if (file) {
       setPhoto(file);
-      const reader = new FileReader(); 
+      const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result.toString());
       }
@@ -33,9 +33,9 @@ const UpdateProfile = () => {
   };
 
   const handleTagClick = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag) 
+    setSelectedTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
   };
@@ -44,13 +44,13 @@ const UpdateProfile = () => {
     event.preventDefault();
     try {
       // Retrieve the email from localStorage (used as the unique identifier for the user)
-      const email = localStorage.getItem('email');
-      if (!email) {
-        throw new Error('Email not found in session');
+      const userID = localStorage.getItem('userID');
+      if (!userID) {
+        throw new Error('userID not found in session');
       }
 
       const formData = new FormData();
-      formData.append('email', email); // Ensure email is included to identify the user
+      formData.append('userID', userID); // Ensure email is included to identify the user
       if (FullName) formData.append('FullName', FullName);
       if (userType) formData.append('userType', userType);
       if (Bio) formData.append('bio', Bio);
@@ -113,7 +113,7 @@ const UpdateProfile = () => {
           />
           <div className="text-wrapper-1">Edit Profile</div>
         </div>
-  
+
         <div className="column-r">
           {TheError && <p>{TheError}</p>}
           <form onSubmit={handleSubmit}>
@@ -136,7 +136,7 @@ const UpdateProfile = () => {
                 <option value="Mentor/Advisor">Mentor/Advisor</option>
               </select>
             </div>
-  
+
             <label htmlFor="resume">Resume:</label>
             <input
               id="resume"
@@ -144,14 +144,14 @@ const UpdateProfile = () => {
               accept=".pdf,.doc,.docx"
               onChange={handleResumeChange}
             />
-  
+
             <label htmlFor="bio">Short Bio:</label>
             <textarea
               id="bio"
               placeholder="Enter Bio"
               onChange={(e) => setBio(e.target.value)}
             ></textarea>
-  
+
             <label htmlFor="tags">Tags:</label>
             <div style={{ display: "flex", gap: "8px" }}>
               {["Frontend", "Backend", "Full Stack"].map(tag => (
@@ -172,8 +172,8 @@ const UpdateProfile = () => {
         </div>
       </div>
     </div>
-  );  
-  
+  );
+
 };
 
 export default UpdateProfile;
