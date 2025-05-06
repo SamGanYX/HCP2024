@@ -41,6 +41,16 @@ interface ProjectImage {
   imageURL: string; 
 }
 
+interface Match {
+  ID: number;
+  FullName: string;
+  Email: string;
+  userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor';
+  profileImage?: string;
+  matchDate: string;
+  status: 'Pending' | 'Accepted' | 'Rejected';
+}
+
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -49,6 +59,7 @@ const Dashboard: React.FC = () => {
   const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [matches, setMatches] = useState<Match[]>([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -59,22 +70,26 @@ const Dashboard: React.FC = () => {
       }
 
       try {
-        // Replace with your actual API endpoint
+        // Fetch user data
         const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userID}`);
-        setUser(userResponse.data);
-
-         // Parse tags inline before updating the state
+        
+        // Parse tags inline before updating the state
         const parsedUser = {
           ...userResponse.data,
           tags: typeof userResponse.data.tags === 'string' 
-          ? JSON.parse(userResponse.data.tags).join(', ') : userResponse.data.tags,
+            ? JSON.parse(userResponse.data.tags).join(', ') : userResponse.data.tags,
         };
 
         setUser(parsedUser);
 
-        // Fetch additional data based on user type
+        // Fetch projects
         const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects/user/${userID}`);
         setProjects(projectsResponse.data);
+        
+        // Fetch mutual matches - add this
+        const matchesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/matches/mutual/${userID}`);
+        setMatches(matchesResponse.data);
+        
         if (userResponse.data.userType === 'Mentor/Advisor') {
           const investorResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/investors/${userResponse.data.ID}`);
           setInvestorInfo(investorResponse.data);
@@ -85,6 +100,7 @@ const Dashboard: React.FC = () => {
       }
     };
 
+    // Fetch project images
     fetch(`${import.meta.env.VITE_BACKEND_URL}/project_images`)
       .then((response) => response.json())
       .then((data) => setProjectImages(data))
@@ -183,6 +199,90 @@ const Dashboard: React.FC = () => {
     </div>
   );
 
+  const handleMatchAction = async (matchedUserID: number, status: 'Accepted' | 'Rejected') => {
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/matches/status/${userID}/${matchedUserID}`, 
+        { status }
+      );
+      
+      // Update matches locally to reflect the new status
+      setMatches(matches.map(match => 
+        match.ID === matchedUserID ? { ...match, status } : match
+      ));
+    } catch (error) {
+      console.error('Error updating match status:', error);
+      setError('Failed to update match status');
+    }
+  };
+
+  const renderMutualMatches = () => (
+    <div className="dashboard-section">
+      <h3>Your Mutual Matches</h3>
+      {matches.length > 0 ? (
+        <div className="matches-grid">
+          {matches.map((match) => (
+            <div key={match.ID} className="match-card">
+              <div className="match-header">
+                {match.profileImage ? (
+                  <img 
+                    src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${match.profileImage}`} 
+                    alt={match.FullName} 
+                    className="match-avatar"
+                  />
+                ) : (
+                  <div className="match-avatar-placeholder">
+                    {match.FullName.charAt(0)}
+                  </div>
+                )}
+                <h4>{match.FullName}</h4>
+              </div>
+              
+              <div className="match-details">
+                <p><strong>User Type:</strong> {match.userType}</p>
+                <p><strong>Email:</strong> {match.Email}</p>
+                <p><strong>Matched On:</strong> {new Date(match.matchDate).toLocaleDateString()}</p>
+                <p><strong>Status:</strong> <span className={`status-${match.status.toLowerCase()}`}>{match.status}</span></p>
+              </div>
+              
+              <div className="match-actions">
+                <button 
+                  className="btn view-btn"
+                  onClick={() => navigate(`/user/${match.ID}`)}
+                >
+                  View Profile
+                </button>
+                
+                {match.status === 'Pending' && (
+                  <>
+                    <button 
+                      className="btn accept-btn"
+                      onClick={() => handleMatchAction(match.ID, 'Accepted')}
+                    >
+                      Accept
+                    </button>
+                    <button 
+                      className="btn reject-btn"
+                      onClick={() => handleMatchAction(match.ID, 'Rejected')}
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="no-matches">
+          <p>You don't have any mutual matches yet.</p>
+          <p>Keep swiping to find potential connections!</p>
+          <button className="btn" onClick={() => navigate('/swipe')}>Go to Swiping</button>
+        </div>
+      )}
+    </div>
+  );
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -191,6 +291,7 @@ const Dashboard: React.FC = () => {
     <div className="container">
         <div className="dashboard-content">
             {renderUser()}
+            {renderMutualMatches()}
             {projects.length > 0 && renderProjects()}
             {user.userType === 'Mentor/Advisor' && renderMentorAdvisor()}
         </div>

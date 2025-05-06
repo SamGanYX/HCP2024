@@ -769,3 +769,53 @@ app.put('/users', upload.single('resume'), async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   });
+
+// Get mutual matches for a user
+app.get('/api/matches/mutual/:userId', (req, res) => {
+  const userId = req.params.userId;
+  
+  // Query to get all mutual matches from the swipes table
+  const query = `
+    SELECT u.ID, u.FullName, u.Email, u.userType, u.profileImage,
+      s.matched_at AS matchDate, 
+      COALESCE(s.status, 'Pending') AS status
+    FROM user_swipes s
+    JOIN users u ON JSON_CONTAINS(s.matched, CAST(u.ID AS JSON))
+    WHERE s.user_id = ?
+    ORDER BY s.matched_at DESC
+  `;
+  
+  connection.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching mutual matches:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json(results);
+  });
+});
+
+// Update match status
+app.patch('/api/matches/status/:userId/:matchedUserId', (req, res) => {
+  const { userId, matchedUserId } = req.params;
+  const { status } = req.body;
+  
+  if (!['Pending', 'Accepted', 'Rejected'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
+  
+  const query = `
+    UPDATE user_swipes 
+    SET status = ? 
+    WHERE user_id = ? AND JSON_CONTAINS(matched, ?)
+  `;
+  
+  connection.query(query, [status, userId, JSON.stringify(parseInt(matchedUserId))], (err) => {
+    if (err) {
+      console.error('Error updating match status:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    res.json({ success: true });
+  });
+});
