@@ -88,12 +88,13 @@ app.post('/projects_with_image', upload.array('images', 10), (req, res) => {
     });
 });
 
-app.post('/users', upload.single('resume'), (req, res) => {
+app.post('/users', upload.fields([{ name: 'resume' }, { name: 'photo' }]), (req, res) => {
     console.log('Received request body:', req.body);
     console.log('Received file:', req.file);
 
     const { username, FullName, email, password, userType, bio, tags } = req.body;
-    const resumePath = req.file ? req.file.filename : null;
+    const resumePath = req.files['resume'] ? req.files['resume'][0].filename : null; // Accessing the resume file
+    const photoPath = req.files['photo'] ? req.files['photo'][0].filename : null; // Accessing the photo file
 
     console.log('Processed data:', { username, FullName, email, userType, bio, tags });
 
@@ -109,11 +110,11 @@ app.post('/users', upload.single('resume'), (req, res) => {
         }
 
         const sql = `
-            INSERT INTO users (username, FullName, email, password, userType, bio, resumePath, tags)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            INSERT INTO users (username, FullName, email, password, userType, bio, resumePath, photoPath, tags)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         // Generate username from email by removing @ and domain
         const usernameFromEmail = email.split('@')[0];
-        const values = [usernameFromEmail, FullName, email, password, userType, bio, resumePath, tags];
+        const values = [usernameFromEmail, FullName, email, password, userType, bio, resumePath, photoPath, tags];
 
         console.log('Executing SQL with values:', values);
 
