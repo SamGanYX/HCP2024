@@ -36,7 +36,13 @@ connection.connect((err) => {
 // Set up multer storage configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Save files to 'uploads/' directory
+        if (file.fieldname === 'resume') {
+            cb(null, 'uploads/resumes/'); // Save resumes to 'uploads/resumes/' directory
+        } else if (file.fieldname === 'photo') {
+            cb(null, 'uploads/photos/'); // Save photos to 'uploads/photos/' directory
+        } else {
+            cb(new Error('Unexpected field')); // Handle unexpected fields
+        }
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname)); // Unique file name with timestamp
@@ -746,17 +752,18 @@ app.get('/api/right-swipes', async (req, res) => { // Replace 'authenticate' wit
     }
 });
 
-app.put('/users', upload.single('resume'), async (req, res) => {
+app.put('/users', upload.fields([{ name: 'resume' }, { name: 'photo' }]), async (req, res) => {
     const { userID, FullName, userType, bio, tags } = req.body;
-    const resumePath = req.file ? req.file.filename : null;
+    const resumePath = req.files['resume'] ? req.files['resume'][0].filename : null; // Accessing the resume file
+    const photoPath = req.files['photo'] ? req.files['photo'][0].filename : null; // Accessing the photo file
 
     try {
         // Update user information in the database
         const sql = `
         UPDATE users
-        SET FullName = ?, userType = ?, bio = ?, resumePath = ?, tags = ?
+        SET FullName = ?, userType = ?, bio = ?, resumePath = ?, photoPath = ?, tags = ?
         WHERE ID = ?`;
-        const values = [FullName, userType, bio, resumePath, tags, userID];
+        const values = [FullName, userType, bio, resumePath, photoPath, tags, userID];
 
         const [result] = await connection.promise().query(sql, values);
         if (result.affectedRows === 0) {
@@ -776,7 +783,7 @@ app.get('/api/matches/mutual/:userId', (req, res) => {
 
     // Query to get all mutual matches from the swipes table
     const query = `
-    SELECT u.ID, u.FullName, u.Email, u.userType, u.profileImage,
+    SELECT u.ID, u.FullName, u.Email, u.userType, u.photoPath,
       s.matched_at AS matchDate, 
       COALESCE(s.status, 'Pending') AS status
     FROM user_swipes s
