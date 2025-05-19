@@ -144,6 +144,7 @@ app.post('/users', upload.fields([{ name: 'resume' }, { name: 'photo' }]), (req,
 
 // Static route to serve uploaded images
 app.use('/uploads', express.static('uploads'));
+app.use('/uploads/photos', express.static('uploads/photos'));
 
 // Rest of your Express setup...
 
@@ -208,110 +209,69 @@ app.get('/userstats/:userID', (req, res) => {
     });
 });
 
+app.get('/users/matchable/:id', async (req, res) => {
+    const userID = req.params.id;
+    try {
+        // Get all users
+        const [users] = await connection.promise().query('SELECT * FROM users WHERE ID != ?', [userID]);
+
+        // Get swipes for the current user
+        const [swipes] = await connection.promise().query('SELECT swiped_user_id FROM user_swipes WHERE user_id = ?', [userID]);
+
+        // Create a set of swiped user IDs
+        const swipedUserIds = new Set();
+        swipes.forEach(swipe => {
+            swipedUserIds.add(swipe.swiped_user_id);
+        });
+        console.log(swipedUserIds);
+
+        // Filter users to exclude those who have been swiped on or matched
+        const matchableUsers = users.filter(user => !swipedUserIds.has(user.ID));
+        res.status(200).json(matchableUsers);
+    } catch (error) {
+        console.error('Error fetching matchable users:', error);
+        res.status(500).json({ error: 'Failed to fetch matchable users' });
+    }
+});
 
 // =============== Adding to Table ================ \\
 
-app.post('/api/swipe', (req, res) => {
-    const { swiperID, swipeeID, action } = req.body;
+app.post('/api/swipe', async (req, res) => {
+    const { user_id, swiped_user_id, swipeType } = req.body; // Extracting the swiped user ID and swipe type from the request body
+    const swiperID = req.userId; // Assuming you have middleware that sets the user ID in the request
 
-    const insertSwipeSQL = `
-        INSERT INTO swipes (swiperID, swipeeID, action)
-        VALUES (?, ?, ?)
-    `;
+    try {
+        // Insert the swipe action into the database
+        const insertSwipeSQL = `
+            INSERT INTO user_swipes (user_id, swiped_user_id, swipe_type)
+            VALUES (?, ?, ?)
+        `;
+        await connection.promise().query(insertSwipeSQL, [user_id, swiped_user_id, swipeType]);
 
-    connection.query(insertSwipeSQL, [swiperID, swipeeID, action], (err, result) => {
-        if (err) {
-            console.error('Error inserting swipe:', err);
-            return res.status(500).json({ error: err.message });
+        if (swipeType === 'right') {
+            // Check for a match
+            const [swipeeSwipes] = await connection.promise().query('SELECT swipe_type, matched FROM user_swipes WHERE user_id = ?', [swiped_user_id]);
+            const swipeeRights = swipeeSwipes.filter(swipe => swipe.swipe_type === 'right').map(swipe => swipe.swiped_user_id);
+
+            if (swipeeRights.includes(user_id)) {
+                // A match is found
+                const updateMatchesSQL = `
+                    UPDATE user_swipes
+                    SET matched = JSON_ARRAY_APPEND(matched, '$', ?), matched_at = CURRENT_TIMESTAMP
+                    WHERE user_id = ? OR user_id = ?
+                `;
+                await connection.promise().query(updateMatchesSQL, [swiped_user_id, user_id, swiped_user_id]);
+
+                return res.status(201).json({ message: 'Swipe recorded successfully, and a match was made!' });
+            }
         }
 
-        if (action === 'right') {
-            // 1. Update swipe_right array
-            connection.query('SELECT swipe_right FROM user_swipes WHERE user_id = ?', [swiperID], (err, results) => {
-                if (err) return res.status(500).json({ error: err.message });
-
-                let swipeRights = JSON.parse(results[0].swipe_right || '[]');
-                swipeRights.push(swipeeID);
-
-                const updateSwipeRightsSQL = `
-                    UPDATE user_swipes
-                    SET swipe_right = ?
-                    WHERE user_id = ?
-                `;
-
-                connection.query(updateSwipeRightsSQL, [JSON.stringify(swipeRights), swiperID], (err) => {
-                    if (err) return res.status(500).json({ error: err.message });
-
-                    // 2. Check if the swipee had already swiped right on swiper
-                    connection.query('SELECT swipe_right FROM user_swipes WHERE user_id = ?', [swipeeID], (err, results) => {
-                        if (err) return res.status(500).json({ error: err.message });
-
-                        let swipeeRights = JSON.parse(results[0].swipe_right || '[]');
-
-                        if (swipeeRights.includes(swiperID)) {
-                            // 3. Match detected! Update matched array for both users
-                            connection.query('SELECT matched FROM user_swipes WHERE user_id IN (?, ?)', [swiperID, swipeeID], (err, matchResults) => {
-                                if (err) return res.status(500).json({ error: err.message });
-
-                                let swiperMatches = JSON.parse(matchResults[0].matched || '[]');
-                                let swipeeMatches = JSON.parse(matchResults[1].matched || '[]');
-
-                                swiperMatches.push(swipeeID);
-                                swipeeMatches.push(swiperID);
-
-                                const updateMatchesSQL = `
-                                    UPDATE user_swipes
-                                    SET matched = CASE
-                                        WHEN user_id = ? THEN ?
-                                        WHEN user_id = ? THEN ?
-                                    END
-                                    WHERE user_id IN (?, ?)
-                                `;
-
-                                connection.query(updateMatchesSQL, [
-                                    swiperID, JSON.stringify(swiperMatches),
-                                    swipeeID, JSON.stringify(swipeeMatches),
-                                    swiperID, swipeeID
-                                ], (err) => {
-                                    if (err) return res.status(500).json({ error: err.message });
-
-                                    res.status(201).json({ message: 'Swipe and match updated successfully!' });
-                                });
-                            });
-                        } else {
-                            res.status(201).json({ message: 'Swipe recorded successfully (no match yet).' });
-                        }
-                    });
-                });
-            });
-        } else if (action === 'left') {
-            // Swipe left logic (optional, similar to swipe_right update)
-            connection.query('SELECT swipe_left FROM user_swipes WHERE user_id = ?', [swiperID], (err, results) => {
-                if (err) return res.status(500).json({ error: err.message });
-
-                let swipeLefts = JSON.parse(results[0].swipe_left || '[]');
-                swipeLefts.push(swipeeID);
-
-                const updateSwipeLeftSQL = `
-                    UPDATE user_swipes
-                    SET swipe_left = ?
-                    WHERE user_id = ?
-                `;
-
-                connection.query(updateSwipeLeftSQL, [JSON.stringify(swipeLefts), swiperID], (err) => {
-                    if (err) return res.status(500).json({ error: err.message });
-
-                    res.status(201).json({ message: 'Swipe (left) recorded successfully.' });
-                });
-            });
-        }
-    });
+        res.status(201).json({ message: 'Swipe recorded successfully.' });
+    } catch (error) {
+        console.error('Error processing swipe:', error);
+        res.status(500).json({ error: 'Failed to record swipe.' });
+    }
 });
-
-
-
-
-
 
 app.post('/update_users', (req, res) => {
     const { username, email, password, id } = req.body;
