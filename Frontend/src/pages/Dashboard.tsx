@@ -111,38 +111,47 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (matches.length === 0) {
-      const mockMatches: Match[] = [
-        {
-          ID: 1,
-          FullName: "Jane Smith",
-          Email: "janesmith@uw.edu",
-          userType: "Project Seeker",
-          profileImage: undefined,
-          matchDate: "2023-11-15",
-          status: "Pending"
-        },
-        {
-          ID: 2,
-          FullName: "John Doe",
-          Email: "johndoe@uw.edu",
-          userType: "Project Owner",
-          profileImage: undefined,
-          matchDate: "2023-11-14",
-          status: "Accepted"
-        },
-        {
-          ID: 3,
-          FullName: "Alex Johnson",
-          Email: "alexjohnson@uw.edu",
-          userType: "Project Seeker",
-          profileImage: undefined,
-          matchDate: "2023-11-13",
-          status: "Rejected"
+      const fetchPotentialConnections = async () => {
+        try {
+          console.log('Fetching potential connections for user:', userID); // Debug log
+          
+          // First try to get users who swiped right on the current user
+          const swipedRightResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/swiped-right-on/${userID}`);
+          console.log('Swiped right response:', swipedRightResponse.data); // Debug log
+          
+          if (swipedRightResponse.data && swipedRightResponse.data.length > 0) {
+            console.log('Setting matches from swiped right users'); // Debug log
+            setMatches(swipedRightResponse.data);
+            return;
+          }
+
+          console.log('No swiped right users, fetching matchable users'); // Debug log
+          // If no users swiped right, get matchable users
+          const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/matchable/${userID}`);
+          console.log('Matchable users response:', response.data); // Debug log
+          
+          if (response.data) {
+            const users = response.data.map((user: any) => ({
+              ID: user.ID,
+              FullName: user.FullName || user.Username,
+              Email: user.Email,
+              userType: user.userType,
+              profileImage: user.photoPath,
+              matchDate: new Date().toISOString(),
+              status: 'Pending'
+            }));
+            console.log('Setting matches from matchable users'); // Debug log
+            setMatches(users);
+          }
+        } catch (error) {
+          console.error('Error fetching potential connections:', error);
+          setError('Failed to load potential connections');
         }
-      ];
-      setMatches(mockMatches);
+      };
+
+      fetchPotentialConnections();
     }
-  }, [matches]);
+  }, [matches, userID]);
 
   const isImageFile = (filename: string): boolean => {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
@@ -253,7 +262,7 @@ const Dashboard: React.FC = () => {
 
   const renderMutualMatches = () => (
     <div className="dashboard-section">
-      <h3>Your Mutual Matches</h3>
+      <h3>Potential Connections</h3>
       {matches.length > 0 ? (
         <div className="matches-grid">
           {matches.map((match) => (
@@ -261,7 +270,7 @@ const Dashboard: React.FC = () => {
               <div className="match-header">
                 {match.profileImage ? (
                   <img 
-                    src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${match.profileImage}`} 
+                    src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${match.profileImage}`} 
                     alt={match.FullName} 
                     className="match-avatar"
                   />
@@ -276,7 +285,6 @@ const Dashboard: React.FC = () => {
               <div className="match-details">
                 <p><strong>User Type:</strong> {match.userType}</p>
                 <p><strong>Email:</strong> {match.Email}</p>
-                <p><strong>Matched On:</strong> {new Date(match.matchDate).toLocaleDateString()}</p>
                 <p><strong>Status:</strong> <span className={`status-${match.status.toLowerCase()}`}>{match.status}</span></p>
               </div>
               
@@ -294,13 +302,13 @@ const Dashboard: React.FC = () => {
                       className="btn accept-btn"
                       onClick={() => handleMatchAction(match.ID, 'Accepted')}
                     >
-                      Accept
+                      Connect
                     </button>
                     <button 
                       className="btn reject-btn"
                       onClick={() => handleMatchAction(match.ID, 'Rejected')}
                     >
-                      Reject
+                      Skip
                     </button>
                   </>
                 )}
@@ -310,9 +318,8 @@ const Dashboard: React.FC = () => {
         </div>
       ) : (
         <div className="no-matches">
-          <p>You don't have any mutual matches yet.</p>
-          <p>Keep swiping to find potential connections!</p>
-          <button className="btn" onClick={() => navigate('/swipe')}>Go to Swiping</button>
+          <p>No users found.</p>
+          <button className="btn" onClick={() => navigate('/swiping')}>Go to Swiping</button>
         </div>
       )}
     </div>
