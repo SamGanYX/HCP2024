@@ -63,6 +63,31 @@ function getRightSwipedUsers(userId) {
 }
 
 /**
+ * Get all users who have swiped right on a specific user
+ * @param {number} userId - The ID of the user to check who swiped right on them
+ * @returns {Promise} - Resolves with an array of users who swiped right
+ */
+function getUsersWhoSwipedRightOn(userId) {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT u.* 
+            FROM users u
+            JOIN user_swipes s ON u.ID = s.user_id
+            WHERE s.swiped_user_id = ? AND s.swipe_type = 'right'
+        `;
+
+        connection.query(sql, [userId], (err, results) => {
+            if (err) {
+                console.error('Error fetching users who swiped right:', err);
+                reject(err);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+}
+
+/**
  * Check if there's a match between two users (both swiped right on each other)
  * @param {number} userId1 - First user ID
  * @param {number} userId2 - Second user ID
@@ -222,6 +247,7 @@ async function updateMatchedArray(userId, matchId) {
 module.exports = {
     recordSwipe,
     getRightSwipedUsers,
+    getUsersWhoSwipedRightOn,
     checkForMatch,
     handleSwipe,
     updateMatchedArray
