@@ -20,40 +20,40 @@ interface Character {
   url: string;
   position: string;
   tags: string[];
-  description: string; 
+  description: string;
 }
 
 const db: Character[] = [
-  { 
-    name: 'Richard Hendricks', 
+  {
+    name: 'Richard Hendricks',
     url: richardImg,
     position: 'Software Engineer',
     tags: ['Techie', 'Developer', 'Programmer'],
     description: 'A talented software engineer focused on building scalable solutions for startups.'
   },
-  { 
-    name: 'Erlich Bachman', 
+  {
+    name: 'Erlich Bachman',
     url: erlichImg,
     position: 'Startup Incubator',
     tags: ['Dog Lover', 'Backend', 'SQL'],
     description: 'A confident and charismatic startup guru who loves making business connections.'
   },
-  { 
-    name: 'Monica Hall', 
+  {
+    name: 'Monica Hall',
     url: monicaImg,
     position: 'UX/UI Design',
     tags: ['Figma', 'React', 'Quirky'],
     description: 'A passionate UX/UI designer with a keen eye for user-centric design.'
   },
-  { 
-    name: 'Jared Dunn', 
+  {
+    name: 'Jared Dunn',
     url: jaredImg,
     position: 'CEO',
     tags: ['Nonchalant', 'Chill', '12X TA', 'That guy'],
     description: 'A calm and composed CEO with a strategic vision for growth and innovation.'
   },
-  { 
-    name: 'Dinesh Chugtai', 
+  {
+    name: 'Dinesh Chugtai',
     url: dineshImg,
     position: 'Startup Incubator',
     tags: ['Bouldering', 'Data Science', 'Entrepenuer'],
@@ -64,7 +64,7 @@ const db: Character[] = [
 const Swiping: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1);
   const [lastDirection, setLastDirection] = useState<string | undefined>();
-  
+
   const currentIndexRef = useRef<number>(currentIndex);
   const childRefs = useMemo(
     () => Array(db.length).fill(0).map(() => React.createRef<TinderCard>()),
@@ -82,13 +82,38 @@ const Swiping: React.FC = () => {
   const swiped = (direction: string, nameToDelete: string, index: number): void => {
     setLastDirection(direction);
     updateCurrentIndex(index - 1);
+
+
+    console.log(`You swiped ${direction} on ${swiped_user_id}`);
+    // Send request to backend to record the swipe
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userID, // Use the actual current user from login info
+          swiped_user_id: swiped_user_id, // Use the actual current user from login info
+          swipeType: direction,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.match) {
+        alert(`You matched with ${swiped}!`);
+      }
+    } catch (error) {
+      console.error('Error sending swipe data:', error);
+    }
   };
 
-  const outOfFrame = (name: string, idx: number): void => {
-    console.log(`${name} (${idx}) left the screen!`, currentIndexRef.current);
+  const outOfFrame = (swiped_user_id: number, idx: number): void => {
+    console.log(`${swiped_user_id} (${idx}) left the screen!`, currentIndexRef.current);
     if (currentIndexRef.current >= idx) {
       childRefs[idx].current?.restoreCard();
     }
+    swiped("left", swiped_user_id, idx);
   };
 
   const swipe = async (dir: string): Promise<void> => {
@@ -115,51 +140,56 @@ const Swiping: React.FC = () => {
           <TinderCard
             ref={childRefs[index]}
             className='swipe'
-            key={character.name}
-            onSwipe={(dir: string) => swiped(dir, character.name, index)}
-            onCardLeftScreen={() => outOfFrame(character.name, index)}
+            key={user.ID} // Use ID as the key
+            onSwipe={(dir: string) => swiped(dir, user.ID, index)}
+            onCardLeftScreen={() => outOfFrame(user.ID, index)}
           >
-            <div style={{ backgroundImage: `url(${character.url})` }} className='card'>
-                {/* Rose Icon Button at the top left */}
-                <button className="roseButton" onClick={() => console.log("Rose icon clicked!")}>
-                    <img src={roseIcon} alt="Rose Icon" />
-                </button>
-                
-                <div className="info-section">
-                    <h3>{character.name}</h3>
-                    <span className="position">{character.position}</span>
-                    
-                    {/* Description Section */}
-                    <p className="description">{character.description}</p>
+            <div style={{ backgroundImage: `url(${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user.photoPath})` }} className='card'>
+              <button className="roseButton" onClick={() => swiped("rose", user.ID, index)}>
+                <img src={roseIcon} alt="Rose Icon" />
+              </button>
 
-                    {/* Tags Section */}
-                    <div className="tags">
+              <div className="info-section">
+                <h3>{user.FullName}</h3>
+                <span className="position">{user.userType}</span>
+
+                <div className="info-section">
+                  <h3>{character.name}</h3>
+                  <span className="position">{character.position}</span>
+
+                  {/* Description Section */}
+                  <p className="description">{character.description}</p>
+
+                  {/* Tags Section */}
+                  <div className="tags">
                     {character.tags.map((tag, index) => (
-                        <div key={index} className="tag">
+                      <div key={index} className="tag">
                         {tag}
-                        </div>
+                      </div>
                     ))}
-                    </div>
+                  </div>
 
                 </div>
-            </div>
+              </div>
           </TinderCard>
         ))}
       </div>
       <div className='buttons'>
-        
-        <button style={{ 
-            backgroundColor: canSwipe ? '#FFFFFF' : undefined,
-            border: '1px solid #D9D9D9'  /* Add the 1px border here */}} 
-        onClick={() => swipe('left')}>
-        <img src={leftButtonImg} alt="Swipe Left" />
+
+        <button style={{
+          backgroundColor: canSwipe ? '#FFFFFF' : undefined,
+          border: '1px solid #D9D9D9'  /* Add the 1px border here */
+        }}
+          onClick={() => swipe('left')}>
+          <img src={leftButtonImg} alt="Swipe Left" />
         </button>
 
-        <button style={{ 
-            backgroundColor: canGoBack ? '#1970FF' : undefined,
-            lineHeight: '18px',
-            fontSize: '15px',  /* Set the font size here */ }} 
-            onClick={() => goBack()}>
+        <button style={{
+          backgroundColor: canGoBack ? '#1970FF' : undefined,
+          lineHeight: '18px',
+          fontSize: '15px',  /* Set the font size here */
+        }}
+          onClick={() => goBack()}>
           Undo swipe!
         </button>
 
