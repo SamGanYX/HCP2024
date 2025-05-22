@@ -4,6 +4,7 @@ import "./App.css";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import CreateProfile from './pages/Profile';
 import NoPage from "./pages/NoPage";
 import Users from "./pages/Users";
 import Projects from "./pages/Projects";
@@ -30,26 +31,24 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-in" element={<Signin />} />
           <Route path="/swiping" element={<Swiping />} />
-          {/* 
-          Comment out all other routes temporarily
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/create_profile" element={<CreateProfile />}></Route>
           <Route path="/users" element={<Users />} />
           <Route path="/user/:id" element={<User />} />
           <Route path="/investor/:id" element={<InvestorDetails />} />
           <Route path="/projects_map" element={<Projects />} />
           <Route path="/login" element={<Login />} />
           <Route path="/projects" element={<ViewProjects />} />
-          <Route path="/create_account" element={<CreateAccount />} />
+          <Route path="/profile_details" element={<CreateAccount />} />
           <Route path="/add_investors" element={<AddInvestors />} />
           <Route path="/investors" element={<Investors />} />
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NoPage />} />
-          */} 
         </Routes>
       </BrowserRouter>
     </div>

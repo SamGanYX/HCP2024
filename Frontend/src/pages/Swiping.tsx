@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import TinderCard from 'react-tinder-card';
 import './Swiping.css';
 
@@ -7,82 +7,48 @@ import leftButtonImg from '../assets/buttons/leftButtonImg.svg';
 import rightButtonImg from '../assets/buttons/rightButtonImg.svg';
 import roseIcon from '../assets/buttons/roseIcon.png';
 
-// hardcoded character images
-import richardImg from '../assets/img/richard.jpg';
-import erlichImg from '../assets/img/erlich.jpg';
-import monicaImg from '../assets/img/monica.jpg';
-import jaredImg from '../assets/img/jared.jpg';
-import dineshImg from '../assets/img/dinesh.jpg';
-
-
-interface Character {
-  name: string;
-  url: string;
-  position: string;
-  tags: string[];
-  description: string;
+interface TinderCardAPI {
+  swipe: (dir?: string) => Promise<void>;
+  restoreCard: () => Promise<void>;
 }
 
-const db: Character[] = [
-  {
-    name: 'Richard Hendricks',
-    url: richardImg,
-    position: 'Software Engineer',
-    tags: ['Techie', 'Developer', 'Programmer'],
-    description: 'A talented software engineer focused on building scalable solutions for startups.'
-  },
-  {
-    name: 'Erlich Bachman',
-    url: erlichImg,
-    position: 'Startup Incubator',
-    tags: ['Dog Lover', 'Backend', 'SQL'],
-    description: 'A confident and charismatic startup guru who loves making business connections.'
-  },
-  {
-    name: 'Monica Hall',
-    url: monicaImg,
-    position: 'UX/UI Design',
-    tags: ['Figma', 'React', 'Quirky'],
-    description: 'A passionate UX/UI designer with a keen eye for user-centric design.'
-  },
-  {
-    name: 'Jared Dunn',
-    url: jaredImg,
-    position: 'CEO',
-    tags: ['Nonchalant', 'Chill', '12X TA', 'That guy'],
-    description: 'A calm and composed CEO with a strategic vision for growth and innovation.'
-  },
-  {
-    name: 'Dinesh Chugtai',
-    url: dineshImg,
-    position: 'Startup Incubator',
-    tags: ['Bouldering', 'Data Science', 'Entrepenuer'],
-    description: 'An ambitious entrepreneur with a deep interest in data science and climbing.'
-  },
-];
+// Updated Character interface to match the users table
+interface Character {
+  ID: number; // Unique identifier
+  Username: string; // Username
+  FullName: string; // Full name
+  Email: string; // Email address
+  userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor'; // User type
+  resumePath: string; // Path to the uploaded resume
+  photoPath: string; // Path to the uploaded resume
+  bio: string; // Biography
+  tags: string[]; // Tags associated with the user
+}
 
 const Swiping: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [lastDirection, setLastDirection] = useState<string | undefined>();
-
+  const [users, setUsers] = useState<Character[]>([]);
   const currentIndexRef = useRef<number>(currentIndex);
   const childRefs = useMemo(
-    () => Array(db.length).fill(0).map(() => React.createRef<TinderCard>()),
-    []
+    () => Array(users.length).fill(0).map(() => React.createRef<TinderCardAPI>()),
+    [users.length]
   );
+
+  const userID = localStorage.getItem("userID");
 
   const updateCurrentIndex = (val: number): void => {
     setCurrentIndex(val);
+    console.log(val);
     currentIndexRef.current = val;
   };
 
-  const canGoBack = currentIndex < db.length - 1;
+  const canGoBack = currentIndex < users.length - 1;
   const canSwipe = currentIndex >= 0;
 
-  const swiped = (direction: string, nameToDelete: string, index: number): void => {
+  const swiped = async (direction: string, swiped_user_id: number, index: number): Promise<void> => {
     setLastDirection(direction);
     updateCurrentIndex(index - 1);
-
 
     console.log(`You swiped ${direction} on ${swiped_user_id}`);
     // Send request to backend to record the swipe
@@ -117,7 +83,7 @@ const Swiping: React.FC = () => {
   };
 
   const swipe = async (dir: string): Promise<void> => {
-    if (canSwipe && currentIndex < db.length) {
+    if (canSwipe && currentIndex < users.length) {
       await childRefs[currentIndex].current?.swipe(dir);
     }
   };
@@ -129,14 +95,55 @@ const Swiping: React.FC = () => {
     await childRefs[newIndex].current?.restoreCard();
   };
 
+  useEffect(() => {
+    const fetchMatchableUsers = async () => {
+      if (!userID) return;
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch matchable users');
+        }
+        const data = await response.json();
+        
+        // Filter out the current user and format the data
+        const formattedUsers = data
+          .filter((user: any) => user.ID !== parseInt(userID))
+          .map((user: any) => ({
+            ID: user.ID,
+            Username: user.Username,
+            FullName: user.FullName || user.Username, // Fallback to username if FullName is null
+            Email: user.Email,
+            userType: user.userType,
+            resumePath: user.resumePath,
+            photoPath: user.photoPath || 'default-avatar.png', // Fallback to default avatar if no photo
+            bio: user.bio || 'No bio available', // Fallback to default message if no bio
+            tags: user.tags ? JSON.parse(user.tags) : [] // Parse tags if they exist
+          }));
+
+        setUsers(formattedUsers);
+        setCurrentIndex(formattedUsers.length - 1);
+      } catch (error) {
+        console.error('Error fetching matchable users:', error);
+      }
+    };
+
+    fetchMatchableUsers();
+  }, [userID]);
+
   return (
     <div className="app">
       <link href='https://fonts.googleapis.com/css?family=Damion&display=swap' rel='stylesheet' />
       <link href='https://fonts.googleapis.com/css?family=Alatsi&display=swap' rel='stylesheet' />
-      <h1>React Tinder Card</h1>
+      <h1>Find Connections</h1>
       <h2>University of Washington</h2>
       <div className='cardContainer'>
-        {db.map((character, index) => (
+        {users.map((user, index) => (
           <TinderCard
             ref={childRefs[index]}
             className='swipe'
