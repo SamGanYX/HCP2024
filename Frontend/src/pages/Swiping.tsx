@@ -29,7 +29,6 @@ const Swiping: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [lastDirection, setLastDirection] = useState<string | undefined>();
   const [users, setUsers] = useState<Character[]>([]);
-  
   const currentIndexRef = useRef<number>(currentIndex);
   const childRefs = useMemo(
     () => Array(users.length).fill(0).map(() => React.createRef<TinderCardAPI>()),
@@ -51,47 +50,36 @@ const Swiping: React.FC = () => {
     setLastDirection(direction);
     updateCurrentIndex(index - 1);
 
-    if (direction === 'right') {
-      console.log(`You swiped right on ${swiped_user_id}`);
-      // Send request to backend to record the swipe
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_id: parseInt(userID || '0'), // Convert to number and handle null case
-            swiped_user_id: swiped_user_id,
-            swipeType: direction,
-          }),
-        });
+    console.log(`You swiped ${direction} on ${swiped_user_id}`);
+    // Send request to backend to record the swipe
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userID, // Use the actual current user from login info
+          swiped_user_id: swiped_user_id, // Use the actual current user from login info
+          swipeType: direction,
+        }),
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to record swipe');
-        }
-
-        const data = await response.json();
-        if (data.match) {
-          // Find the user's name from the users array
-          const matchedUser = users.find(user => user.ID === swiped_user_id);
-          if (matchedUser) {
-            alert(`You matched with ${matchedUser.FullName}!`);
-          } else {
-            alert('You got a match!');
-          }
-        }
-      } catch (error) {
-        console.error('Error sending swipe data:', error);
+      const data = await response.json();
+      if (data.match) {
+        alert(`You matched with ${swiped}!`);
       }
+    } catch (error) {
+      console.error('Error sending swipe data:', error);
     }
   };
 
-  const outOfFrame = (name: string, idx: number): void => {
-    console.log(`${name} (${idx}) left the screen!`, currentIndexRef.current);
+  const outOfFrame = (swiped_user_id: number, idx: number): void => {
+    console.log(`${swiped_user_id} (${idx}) left the screen!`, currentIndexRef.current);
     if (currentIndexRef.current >= idx) {
       childRefs[idx].current?.restoreCard();
     }
+    swiped("left", swiped_user_id, idx);
   };
 
   const swipe = async (dir: string): Promise<void> => {
@@ -161,52 +149,54 @@ const Swiping: React.FC = () => {
             className='swipe'
             key={user.ID} // Use ID as the key
             onSwipe={(dir: string) => swiped(dir, user.ID, index)}
-            onCardLeftScreen={() => outOfFrame(user.FullName, index)}
+            onCardLeftScreen={() => outOfFrame(user.ID, index)}
           >
-            <div 
-              style={{ 
-                backgroundImage: `url(${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user.photoPath})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }} 
-              className='card'
-            >
-              <button className="roseButton" onClick={() => console.log("Rose icon clicked!")}>
+            <div style={{ backgroundImage: `url(${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user.photoPath})` }} className='card'>
+              <button className="roseButton" onClick={() => swiped("rose", user.ID, index)}>
                 <img src={roseIcon} alt="Rose Icon" />
               </button>
-              
+
               <div className="info-section">
                 <h3>{user.FullName}</h3>
                 <span className="position">{user.userType}</span>
-                
-                <p className="description">{user.bio}</p>
 
-                {user.tags && user.tags.length > 0 && (
+                <div className="info-section">
+                  <h3>{character.name}</h3>
+                  <span className="position">{character.position}</span>
+
+                  {/* Description Section */}
+                  <p className="description">{character.description}</p>
+
+                  {/* Tags Section */}
                   <div className="tags">
-                    {user.tags.map((tag: string, i: number) => (
-                      <span key={i} className="tag">{tag}</span>
+                    {character.tags.map((tag, index) => (
+                      <div key={index} className="tag">
+                        {tag}
+                      </div>
                     ))}
                   </div>
-                )}
+
+                </div>
               </div>
-            </div>
           </TinderCard>
         ))}
       </div>
       <div className='buttons'>
-        <button style={{ 
-            backgroundColor: canSwipe ? '#FFFFFF' : undefined,
-            border: '1px solid #D9D9D9' 
-          }} 
+
+        <button style={{
+          backgroundColor: canSwipe ? '#FFFFFF' : undefined,
+          border: '1px solid #D9D9D9'  /* Add the 1px border here */
+        }}
           onClick={() => swipe('left')}>
           <img src={leftButtonImg} alt="Swipe Left" />
         </button>
 
-        <button style={{ 
-            backgroundColor: canGoBack ? '#1970FF' : undefined,
-            lineHeight: '18px',
-            fontSize: '15px' }} 
-            onClick={() => goBack()}>
+        <button style={{
+          backgroundColor: canGoBack ? '#1970FF' : undefined,
+          lineHeight: '18px',
+          fontSize: '15px',  /* Set the font size here */
+        }}
+          onClick={() => goBack()}>
           Undo swipe!
         </button>
 
