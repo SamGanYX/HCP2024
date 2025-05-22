@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS Matches;
 DROP TABLE IF EXISTS applications;
 DROP TABLE IF EXISTS collaborators;
 DROP TABLE IF EXISTS user_skills;
+DROP TABLE IF EXISTS user_swipes;
 DROP TABLE IF EXISTS project_images;
 DROP TABLE IF EXISTS UserProjectRoles;
 DROP TABLE IF EXISTS projects;
@@ -140,12 +141,11 @@ ADD ContactInfo VARCHAR(255);
 ALTER TABLE projects
 ADD category VARCHAR(255);
 
-DROP TABLE IF EXISTS user_swipes;
 CREATE TABLE user_swipes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     swiped_user_id INT NOT NULL,
-    swipe_type ENUM('left', 'right') NOT NULL,
+    swipe_type ENUM('left', 'right', 'rose') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(ID),
     FOREIGN KEY (swiped_user_id) REFERENCES users(ID),
@@ -155,6 +155,4 @@ CREATE TABLE user_swipes (
     status ENUM('Pending', 'Accepted', 'Rejected') DEFAULT 'Pending'
 );
 
-
-ALTER TABLE users
-ADD photoPath VARCHAR(255);
+ALTER TABLE users ADD photoPath VARCHAR(255);
