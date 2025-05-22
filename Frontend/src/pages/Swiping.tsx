@@ -29,7 +29,7 @@ const Swiping: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [lastDirection, setLastDirection] = useState<string | undefined>();
   const [users, setUsers] = useState<Character[]>([]);
-  
+
   const currentIndexRef = useRef<number>(currentIndex);
   const childRefs = useMemo(
     () => Array(users.length).fill(0).map(() => React.createRef<TinderCardAPI>()),
@@ -122,7 +122,7 @@ const Swiping: React.FC = () => {
           throw new Error('Failed to fetch matchable users');
         }
         const data = await response.json();
-        
+
         // Filter out the current user and format the data
         const formattedUsers = data
           .filter((user: any) => user.ID !== parseInt(userID))
@@ -163,22 +163,22 @@ const Swiping: React.FC = () => {
             onSwipe={(dir: string) => swiped(dir, user.ID, index)}
             onCardLeftScreen={() => outOfFrame(user.FullName, index)}
           >
-            <div 
-              style={{ 
+            <div
+              style={{
                 backgroundImage: `url(${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user.photoPath})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
-              }} 
+              }}
               className='card'
             >
               <button className="roseButton" onClick={() => console.log("Rose icon clicked!")}>
                 <img src={roseIcon} alt="Rose Icon" />
               </button>
-              
+
               <div className="info-section">
                 <h3>{user.FullName}</h3>
                 <span className="position">{user.userType}</span>
-                
+
                 <p className="description">{user.bio}</p>
 
                 {user.tags && user.tags.length > 0 && (
@@ -194,19 +194,20 @@ const Swiping: React.FC = () => {
         ))}
       </div>
       <div className='buttons'>
-        <button style={{ 
-            backgroundColor: canSwipe ? '#FFFFFF' : undefined,
-            border: '1px solid #D9D9D9' 
-          }} 
+        <button style={{
+          backgroundColor: canSwipe ? '#FFFFFF' : undefined,
+          border: '1px solid #D9D9D9'
+        }}
           onClick={() => swipe('left')}>
           <img src={leftButtonImg} alt="Swipe Left" />
         </button>
 
-        <button style={{ 
-            backgroundColor: canGoBack ? '#1970FF' : undefined,
-            lineHeight: '18px',
-            fontSize: '15px' }} 
-            onClick={() => goBack()}>
+        <button style={{
+          backgroundColor: canGoBack ? '#1970FF' : undefined,
+          lineHeight: '18px',
+          fontSize: '15px'
+        }}
+          onClick={() => goBack()}>
           Undo swipe!
         </button>
 
