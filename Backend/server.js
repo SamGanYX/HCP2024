@@ -145,6 +145,7 @@ app.post('/users', upload.fields([{ name: 'resume' }, { name: 'photo' }]), (req,
 // Static route to serve uploaded images
 app.use('/uploads', express.static('uploads'));
 app.use('/uploads/photos', express.static('uploads/photos'));
+app.use('/uploads/resumes', express.static('uploads/resumes'));
 
 // Rest of your Express setup...
 
@@ -902,5 +903,40 @@ app.get('/api/swiped-right-on/:userId', async (req, res) => {
     } catch (error) {
         console.error('Error fetching users who swiped right:', error);
         res.status(500).json({ error: 'Failed to fetch users who swiped right' });
+    }
+});
+
+// New endpoint to accept a swipe
+app.post('/api/accept-swipe', async (req, res) => {
+    const { userId, swipedUserId } = req.body;
+
+    try {
+        // Update both users' matched arrays directly
+        const user_swipe_id = await connection.promise().query(
+            'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
+            [userId, swipedUserId]
+        );
+        const swiped_user_swipe_id = await connection.promise().query(
+            'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
+            [swipedUserId, userId]
+        );
+
+        // Update both users' matched arrays in the database
+        await connection.promise().query(
+            'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
+            user_swipe_id
+        );
+        await connection.promise().query(
+            'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
+            swiped_user_swipe_id
+        );
+
+        return res.status(200).json({ 
+            message: 'Swipe accepted successfully, and a match was made!',
+            match: true 
+        });
+    } catch (error) {
+        console.error('Error accepting swipe:', error);
+        res.status(500).json({ error: 'Failed to accept swipe.' });
     }
 });

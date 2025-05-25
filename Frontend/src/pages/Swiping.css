@@ -9,6 +9,16 @@
     background-color: #ffffff;
 }
 
+.btn-text {
+    color:#fff;
+    margin: 0px;
+    text-decoration: none;
+}
+
+.tags-text {
+    color: #fff;
+}
+
 h2 {
     font-size: 15px;
     color: #000000;

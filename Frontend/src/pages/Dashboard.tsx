@@ -173,7 +173,7 @@ const Dashboard: React.FC = () => {
           <p>
             <strong>Resume:</strong> 
             <a 
-              href={`${import.meta.env.VITE_BACKEND_URL}/uploads/${user.resumePath}`} 
+              href={`${import.meta.env.VITE_BACKEND_URL}/uploads/resumes/${user.resumePath}`} 
               target="_blank" 
               rel="noopener noreferrer"
             >
@@ -203,7 +203,7 @@ const Dashboard: React.FC = () => {
                   isImageFile(image.imageURL) ? (
                     <img
                       key={index}
-                      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${image.imageURL}`}
+                      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${image.imageURL}`}
                       alt={`Project ${project.projectName} - Image ${index + 1}`}
                       className="project-image"
                     />

@@ -169,14 +169,15 @@ const Swiping: React.FC = () => {
                 <span className="position">{user.userType}</span>
                 
                 <p className="description">{user.bio}</p>
+                <div className="btn">  
+                  <a className = "btn-text" href={`${import.meta.env.VITE_BACKEND_URL}/uploads/resumes/${user.resumePath}`}> 
+                    <p className="btn-text">View Resume</p>
+                  </a>
+                </div>
 
                   {/* Tags Section */}
-                  <div className="tags">
-                    {character.tags.map((tag, index) => (
-                      <div key={index} className="tag">
-                        {tag}
-                      </div>
-                    ))}
+                  <div className="tags tags-text">
+                    {user.tags}
                   </div>
 
                 </div>
