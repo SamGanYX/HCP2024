@@ -7,11 +7,6 @@ import leftButtonImg from '../assets/buttons/leftButtonImg.svg';
 import rightButtonImg from '../assets/buttons/rightButtonImg.svg';
 import roseIcon from '../assets/buttons/roseIcon.png';
 
-interface TinderCardAPI {
-  swipe: (dir?: string) => Promise<void>;
-  restoreCard: () => Promise<void>;
-}
-
 // Updated Character interface to match the users table
 interface Character {
   ID: number; // Unique identifier
@@ -32,7 +27,7 @@ const Swiping: React.FC = () => {
   
   const currentIndexRef = useRef<number>(currentIndex);
   const childRefs = useMemo(
-    () => Array(users.length).fill(0).map(() => React.createRef<TinderCardAPI>()),
+    () => Array(users.length).fill(0).map(() => React.createRef<TinderCard>()),
     [users.length]
   );
 
@@ -51,27 +46,29 @@ const Swiping: React.FC = () => {
     setLastDirection(direction);
     updateCurrentIndex(index - 1);
 
-    console.log(`You swiped ${direction} on ${swiped_user_id}`);
-    // Send request to backend to record the swipe
-    try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: userID, // Use the actual current user from login info
-          swiped_user_id: swiped_user_id, // Use the actual current user from login info
-          swipeType: direction,
-        }),
-      });
+    if (direction === 'right') {
+      console.log(`You swiped right on ${swiped}`);
+      // Send request to backend to record the swipe
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: userID, // Use the actual current user from login info
+            swiped_user_id: swiped_user_id, // Use the actual current user from login info
+            swipeType: direction,
+          }),
+        });
 
-      const data = await response.json();
-      if (data.match) {
-        alert(`You matched with ${swiped}!`);
+        const data = await response.json();
+        if (data.match) {
+          alert(`You matched with ${swiped}!`);
+        }
+      } catch (error) {
+        console.error('Error sending swipe data:', error);
       }
-    } catch (error) {
-      console.error('Error sending swipe data:', error);
     }
   };
 
@@ -101,7 +98,7 @@ const Swiping: React.FC = () => {
       if (!userID) return;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/matchable/${userID}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -111,24 +108,8 @@ const Swiping: React.FC = () => {
           throw new Error('Failed to fetch matchable users');
         }
         const data = await response.json();
-
-        // Filter out the current user and format the data
-        const formattedUsers = data
-          .filter((user: any) => user.ID !== parseInt(userID))
-          .map((user: any) => ({
-            ID: user.ID,
-            Username: user.Username,
-            FullName: user.FullName || user.Username, // Fallback to username if FullName is null
-            Email: user.Email,
-            userType: user.userType,
-            resumePath: user.resumePath,
-            photoPath: user.photoPath || 'default-avatar.png', // Fallback to default avatar if no photo
-            bio: user.bio || 'No bio available', // Fallback to default message if no bio
-            tags: user.tags ? JSON.parse(user.tags) : [] // Parse tags if they exist
-          }));
-
-        setUsers(formattedUsers);
-        setCurrentIndex(formattedUsers.length - 1);
+        setUsers(data);
+        setCurrentIndex(data.length-1);
       } catch (error) {
         console.error('Error fetching matchable users:', error);
       }
@@ -141,7 +122,7 @@ const Swiping: React.FC = () => {
     <div className="app">
       <link href='https://fonts.googleapis.com/css?family=Damion&display=swap' rel='stylesheet' />
       <link href='https://fonts.googleapis.com/css?family=Alatsi&display=swap' rel='stylesheet' />
-      <h1>Find Connections</h1>
+      <h1>React Tinder Card</h1>
       <h2>University of Washington</h2>
       <div className='cardContainer'>
         {users.map((user, index) => (
@@ -152,14 +133,7 @@ const Swiping: React.FC = () => {
             onSwipe={(dir: string) => swiped(dir, user.ID, index)}
             onCardLeftScreen={() => outOfFrame(user.ID, index)}
           >
-            <div 
-              style={{ 
-                backgroundImage: `url(${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user.photoPath})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }} 
-              className='card'
-            >
+            <div style={{ backgroundImage: `url(${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user.photoPath})` }} className='card'>
               <button className="roseButton" onClick={() => console.log("Rose icon clicked!")}>
                 <img src={roseIcon} alt="Rose Icon" />
               </button>

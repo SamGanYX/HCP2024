@@ -238,104 +238,36 @@ app.get('/users/matchable/:id', async (req, res) => {
 // =============== Adding to Table ================ \\
 
 app.post('/api/swipe', async (req, res) => {
-    const { user_id, swiped_user_id, swipeType } = req.body;
+    const { user_id, swiped_user_id, swipeType } = req.body; // Extracting the swiped user ID and swipe type from the request body
+    const swiperID = req.userId; // Assuming you have middleware that sets the user ID in the request
 
     try {
-        // First, check if the user already has a record
-        const [existingRecord] = await connection.promise().query(
-            'SELECT * FROM user_swipes WHERE user_id = ?',
-            [user_id]
-        );
+        // Insert the swipe action into the database
+        const insertSwipeSQL = `
+            INSERT INTO user_swipes (user_id, swiped_user_id, swipe_type, matched)
+            VALUES (?, ?, ?, 0)
+        `;
+        await connection.promise().query(insertSwipeSQL, [user_id, swiped_user_id, swipeType]);
 
-        if (existingRecord.length === 0) {
-            // Create new record with empty arrays
-            await connection.promise().query(
-                'INSERT INTO user_swipes (user_id, swipe_left, swipe_right, matched) VALUES (?, ?, ?, ?)',
-                [user_id, '[]', '[]', '[]']
-            );
-        }
-
-        // Get current arrays
-        const [currentRecord] = await connection.promise().query(
-            'SELECT swipe_left, swipe_right FROM user_swipes WHERE user_id = ?',
-            [user_id]
-        );
-
-        let swipeLeft = JSON.parse(currentRecord[0].swipe_left || '[]');
-        let swipeRight = JSON.parse(currentRecord[0].swipe_right || '[]');
-
-        // Update the appropriate array
-        if (swipeType === 'left') {
-            if (!swipeLeft.includes(swiped_user_id)) {
-                swipeLeft.push(swiped_user_id);
-            }
-        } else if (swipeType === 'right') {
-            if (!swipeRight.includes(swiped_user_id)) {
-                swipeRight.push(swiped_user_id);
-            }
-        }
-
-        // Update the record
-        await connection.promise().query(
-            'UPDATE user_swipes SET swipe_left = ?, swipe_right = ? WHERE user_id = ?',
-            [JSON.stringify(swipeLeft), JSON.stringify(swipeRight), user_id]
-        );
-
-        // If it's a right swipe, check for a match
         if (swipeType === 'right') {
-            // Get the swiped user's record
-            const [swipedUserRecord] = await connection.promise().query(
-                'SELECT swipe_right FROM user_swipes WHERE user_id = ?',
-                [swiped_user_id]
-            );
+            // Check for a match
+            const [swipeeSwipes] = await connection.promise().query('SELECT swipe_type, matched FROM user_swipes WHERE user_id = ?', [swiped_user_id]);
+            const swipeeRights = swipeeSwipes.filter(swipe => swipe.swipe_type === 'right').map(swipe => swipe.swiped_user_id);
 
-            if (swipedUserRecord.length > 0) {
-                const swipedUserRightSwipes = JSON.parse(swipedUserRecord[0].swipe_right || '[]');
-                
-                // Check if there's a match
-                if (swipedUserRightSwipes.includes(parseInt(user_id))) {
-                    // Update both users' matched arrays
-                    const [currentMatched] = await connection.promise().query(
-                        'SELECT matched FROM user_swipes WHERE user_id = ?',
-                        [user_id]
-                    );
-                    const [swipedUserMatched] = await connection.promise().query(
-                        'SELECT matched FROM user_swipes WHERE user_id = ?',
-                        [swiped_user_id]
-                    );
+            if (swipeeRights.includes(user_id)) {
+                // A match is found
+                const updateMatchesSQL = `
+                    UPDATE user_swipes
+                    SET matched = JSON_ARRAY_APPEND(matched, '$', ?), matched_at = CURRENT_TIMESTAMP
+                    WHERE user_id = ? OR user_id = ?
+                `;
+                await connection.promise().query(updateMatchesSQL, [swiped_user_id, user_id, swiped_user_id]);
 
-                    let userMatched = JSON.parse(currentMatched[0]?.matched || '[]');
-                    let swipedUserMatchedArray = JSON.parse(swipedUserMatched[0]?.matched || '[]');
-
-                    if (!userMatched.includes(swiped_user_id)) {
-                        userMatched.push(swiped_user_id);
-                    }
-                    if (!swipedUserMatchedArray.includes(parseInt(user_id))) {
-                        swipedUserMatchedArray.push(parseInt(user_id));
-                    }
-
-                    // Update both users' matched arrays
-                    await connection.promise().query(
-                        'UPDATE user_swipes SET matched = ? WHERE user_id = ?',
-                        [JSON.stringify(userMatched), user_id]
-                    );
-                    await connection.promise().query(
-                        'UPDATE user_swipes SET matched = ? WHERE user_id = ?',
-                        [JSON.stringify(swipedUserMatchedArray), swiped_user_id]
-                    );
-
-                    return res.status(201).json({ 
-                        message: 'Swipe recorded successfully, and a match was made!',
-                        match: true 
-                    });
-                }
+                return res.status(201).json({ message: 'Swipe recorded successfully, and a match was made!' });
             }
         }
 
-        res.status(201).json({ 
-            message: 'Swipe recorded successfully.',
-            match: false
-        });
+        res.status(201).json({ message: 'Swipe recorded successfully.' });
     } catch (error) {
         console.error('Error processing swipe:', error);
         res.status(500).json({ error: 'Failed to record swipe.' });
@@ -916,6 +848,8 @@ app.post('/api/accept-swipe', async (req, res) => {
             'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
             [userId, swipedUserId]
         );
+
+        console.log(user_swipe_id);
         const swiped_user_swipe_id = await connection.promise().query(
             'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
             [swipedUserId, userId]
@@ -924,11 +858,11 @@ app.post('/api/accept-swipe', async (req, res) => {
         // Update both users' matched arrays in the database
         await connection.promise().query(
             'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
-            user_swipe_id
+            user_swipe_id[0][0].id
         );
         await connection.promise().query(
             'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
-            swiped_user_swipe_id
+            swiped_user_swipe_id[0][0].id
         );
 
         return res.status(200).json({ 
