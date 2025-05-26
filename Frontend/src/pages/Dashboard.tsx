@@ -124,25 +124,6 @@ const Dashboard: React.FC = () => {
             setMatches(swipedRightResponse.data);
             return;
           }
-
-          console.log('No swiped right users, fetching matchable users'); // Debug log
-          // If no users swiped right, get matchable users
-          const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/matchable/${userID}`);
-          console.log('Matchable users response:', response.data); // Debug log
-          
-          if (response.data) {
-            const users = response.data.map((user: any) => ({
-              ID: user.ID,
-              FullName: user.FullName || user.Username,
-              Email: user.Email,
-              userType: user.userType,
-              profileImage: user.photoPath,
-              matchDate: new Date().toISOString(),
-              status: 'Pending'
-            }));
-            console.log('Setting matches from matchable users'); // Debug log
-            setMatches(users);
-          }
         } catch (error) {
           console.error('Error fetching potential connections:', error);
           setError('Failed to load potential connections');
@@ -245,18 +226,57 @@ const Dashboard: React.FC = () => {
 
   const handleMatchAction = async (matchedUserID: number, status: 'Accepted' | 'Rejected') => {
     try {
-      await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/matches/status/${userID}/${matchedUserID}`, 
-        { status }
-      );
-      
-      // Update matches locally to reflect the new status
-      setMatches(matches.map(match => 
-        match.ID === matchedUserID ? { ...match, status } : match
-      ));
+        const userID = localStorage.getItem("userID");
+
+        if (status === 'Accepted') {
+            // Send request to backend to record the swipe
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: userID,
+                    swiped_user_id: matchedUserID,
+                    swipeType: 'right',
+                }),
+            });
+
+            const data = await response.json();
+            if (data.match) {
+                alert(`You matched with ${matchedUserID}!`);
+            }
+        } else if (status === 'Rejected') {
+            // Call the reject endpoint when skip button is pressed
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/reject-swipe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userID,
+                    swipedUserId: matchedUserID,
+                }),
+            });
+
+            const data = await response.json();
+            if (data.message) {
+                alert(data.message);
+            }
+        }
+
+        await axios.patch(
+            `${import.meta.env.VITE_BACKEND_URL}/api/matches/status/${userID}/${matchedUserID}`, 
+            { status }
+        );
+
+        // Update matches locally to reflect the new status
+        setMatches(matches.map(match => 
+            match.ID === matchedUserID ? { ...match, status } : match
+        ));
     } catch (error) {
-      console.error('Error updating match status:', error);
-      setError('Failed to update match status');
+        console.error('Error updating match status:', error);
+        setError('Failed to update match status');
     }
   };
 

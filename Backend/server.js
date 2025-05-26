@@ -251,19 +251,44 @@ app.post('/api/swipe', async (req, res) => {
 
         if (swipeType === 'right') {
             // Check for a match
-            const [swipeeSwipes] = await connection.promise().query('SELECT swipe_type, matched FROM user_swipes WHERE user_id = ?', [swiped_user_id]);
-            const swipeeRights = swipeeSwipes.filter(swipe => swipe.swipe_type === 'right').map(swipe => swipe.swiped_user_id);
-
-            if (swipeeRights.includes(user_id)) {
+            const swipeeSwipes = await connection.promise().query('SELECT swipe_type, matched FROM user_swipes WHERE user_id = ? AND swiped_user_id = ? AND swipe_type = "right"', [swiped_user_id, user_id]);
+            // console.log(swipeeSwipes[0][0].swipe_type);
+            if(swipeeSwipes.length == 0) {
+                res.status(201).json({ message: 'Swipe recorded successfully.' });
+            }
+            else if (swipeeSwipes[0][0].swipe_type == "right") {
                 // A match is found
-                const updateMatchesSQL = `
-                    UPDATE user_swipes
-                    SET matched = JSON_ARRAY_APPEND(matched, '$', ?), matched_at = CURRENT_TIMESTAMP
-                    WHERE user_id = ? OR user_id = ?
-                `;
-                await connection.promise().query(updateMatchesSQL, [swiped_user_id, user_id, swiped_user_id]);
-
-                return res.status(201).json({ message: 'Swipe recorded successfully, and a match was made!' });
+                try {
+                    // Update both users' matched arrays directly
+                    const user_swipe_id = await connection.promise().query(
+                        'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
+                        [user_id, swiped_user_id]
+                    );
+            
+                    console.log(user_swipe_id);
+                    const swiped_user_swipe_id = await connection.promise().query(
+                        'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
+                        [swiped_user_id, user_id]
+                    );
+            
+                    // Update both users' matched arrays in the database
+                    await connection.promise().query(
+                        'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
+                        user_swipe_id[0][0].id
+                    );
+                    await connection.promise().query(
+                        'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
+                        swiped_user_swipe_id[0][0].id
+                    );
+            
+                    return res.status(200).json({ 
+                        message: 'Swipe accepted successfully, and a match was made!',
+                        match: true 
+                    });
+                } catch (error) {
+                    console.error('Error accepting swipe:', error);
+                    res.status(500).json({ error: 'Failed to accept swipe.' });
+                }
             }
         }
 
@@ -795,7 +820,7 @@ app.get('/api/swiped-right-on/:userId', async (req, res) => {
     try {
         // Get all users who swiped right on the current user
         const [swipes] = await connection.promise().query(
-            'SELECT user_id FROM user_swipes WHERE swipe_type = "right"',
+            'SELECT user_id FROM user_swipes WHERE swipe_type = "right" AND status = "Pending"',
             [JSON.stringify(parseInt(userId))]
         );
 
@@ -803,35 +828,36 @@ app.get('/api/swiped-right-on/:userId', async (req, res) => {
 
         if (swipes.length === 0) {
             console.log('No swipes found for user:', userId); // Debug log
-            return res.json([]);
+            res.json();
+            // return;
+        } else {
+            // Get the user details for each swiper
+            const swiperIds = swipes.map(swipe => swipe.user_id);
+            console.log('Swiper IDs:', swiperIds); // Debug log
+
+            const [users] = await connection.promise().query(
+                'SELECT ID, Username, FullName, Email, userType, photoPath, bio, tags FROM users WHERE ID IN (?)',
+                [swiperIds]
+            );
+
+            console.log('Found users:', users); // Debug log
+
+            // Format the response
+            const formattedUsers = users.map(user => ({
+                ID: user.ID,
+                FullName: user.FullName || user.Username,
+                Email: user.Email,
+                userType: user.userType,
+                profileImage: user.photoPath || 'default-avatar.png',
+                bio: user.bio || 'No bio available',
+                tags: user.tags ? JSON.parse(user.tags) : [],
+                matchDate: new Date().toISOString(),
+                status: 'Pending'
+            }));
+
+            console.log('Sending formatted users:', formattedUsers); // Debug log
+            res.json(formattedUsers);
         }
-
-        // Get the user details for each swiper
-        const swiperIds = swipes.map(swipe => swipe.user_id);
-        console.log('Swiper IDs:', swiperIds); // Debug log
-
-        const [users] = await connection.promise().query(
-            'SELECT ID, Username, FullName, Email, userType, photoPath, bio, tags FROM users WHERE ID IN (?)',
-            [swiperIds]
-        );
-
-        console.log('Found users:', users); // Debug log
-
-        // Format the response
-        const formattedUsers = users.map(user => ({
-            ID: user.ID,
-            FullName: user.FullName || user.Username,
-            Email: user.Email,
-            userType: user.userType,
-            profileImage: user.photoPath || 'default-avatar.png',
-            bio: user.bio || 'No bio available',
-            tags: user.tags ? JSON.parse(user.tags) : [],
-            matchDate: new Date().toISOString(),
-            status: 'Pending'
-        }));
-
-        console.log('Sending formatted users:', formattedUsers); // Debug log
-        res.json(formattedUsers);
     } catch (error) {
         console.error('Error fetching users who swiped right:', error);
         res.status(500).json({ error: 'Failed to fetch users who swiped right' });
@@ -872,5 +898,38 @@ app.post('/api/accept-swipe', async (req, res) => {
     } catch (error) {
         console.error('Error accepting swipe:', error);
         res.status(500).json({ error: 'Failed to accept swipe.' });
+    }
+});
+
+// New reject function to handle swipe left
+app.post('/api/reject-swipe', async (req, res) => {
+    const { userId, swipedUserId } = req.body;
+
+    try {
+        // Insert the swipe action into the database
+        const insertSwipeSQL = `
+            INSERT INTO user_swipes (user_id, swiped_user_id, swipe_type, matched, status)
+            VALUES (?, ?, 'left', -1, "Rejected")
+        `;
+        await connection.promise().query(insertSwipeSQL, [userId, swipedUserId]);
+
+        // Update the status of the existing swipe to "Rejected"
+        const user_swipe_id = await connection.promise().query(
+            'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
+            [swipedUserId, userId]
+        );
+
+        await connection.promise().query(
+            'UPDATE user_swipes SET status = "Rejected", matched = -1 WHERE id = ?',
+            user_swipe_id[0][0].id
+        );
+
+        return res.status(200).json({ 
+            message: 'Swipe rejected successfully.',
+            match: false 
+        });
+    } catch (error) {
+        console.error('Error rejecting swipe:', error);
+        res.status(500).json({ error: 'Failed to reject swipe.' });
     }
 });
