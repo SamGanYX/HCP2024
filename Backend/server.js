@@ -820,7 +820,7 @@ app.get('/api/swiped-right-on/:userId', async (req, res) => {
     try {
         // Get all users who swiped right on the current user
         const [swipes] = await connection.promise().query(
-            'SELECT user_id FROM user_swipes WHERE swipe_type = "right" AND status = "Pending"',
+            'SELECT user_id FROM user_swipes WHERE swipe_type = "right" AND status = "Pending" AND swiped_user_id = ?',
             [JSON.stringify(parseInt(userId))]
         );
 

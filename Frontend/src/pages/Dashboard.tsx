@@ -83,17 +83,17 @@ const Dashboard: React.FC = () => {
         setUser(parsedUser);
 
         // Fetch projects
-        const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects/user/${userID}`);
-        setProjects(projectsResponse.data);
+        // const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects/user/${userID}`);
+        // setProjects(projectsResponse.data);
         
         // Fetch mutual matches - add this
-        const matchesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/matches/mutual/${userID}`);
-        setMatches(matchesResponse.data);
+        // const matchesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/matches/mutual/${userID}`);
+        // setMatches(matchesResponse.data);
         
-        if (userResponse.data.userType === 'Mentor/Advisor') {
-          const investorResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/investors/${userResponse.data.ID}`);
-          setInvestorInfo(investorResponse.data);
-        }
+        // if (userResponse.data.userType === 'Mentor/Advisor') {
+        //   const investorResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/investors/${userResponse.data.ID}`);
+        //   setInvestorInfo(investorResponse.data);
+        // }
       } catch (error) {
         console.error('Error fetching user data:', error);
         setError('Failed to load dashboard data');
@@ -122,6 +122,8 @@ const Dashboard: React.FC = () => {
           if (swipedRightResponse.data && swipedRightResponse.data.length > 0) {
             console.log('Setting matches from swiped right users'); // Debug log
             setMatches(swipedRightResponse.data);
+            return;
+          } else {
             return;
           }
         } catch (error) {
@@ -271,9 +273,9 @@ const Dashboard: React.FC = () => {
         );
 
         // Update matches locally to reflect the new status
-        setMatches(matches.map(match => 
-            match.ID === matchedUserID ? { ...match, status } : match
-        ));
+        // setMatches(matches.map(match => 
+        //     match.ID === matchedUserID ? { ...match, status } : match
+        // ));
     } catch (error) {
         console.error('Error updating match status:', error);
         setError('Failed to update match status');
