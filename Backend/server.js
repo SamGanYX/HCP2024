@@ -748,7 +748,7 @@ app.put('/users', upload.fields([{ name: 'resume' }, { name: 'photo' }]), async 
         // Update user information in the database
         const sql = `
         UPDATE users
-        SET FullName = ?, userType = ?, bio = ?, resumePath = ?, photoPath = ?, tags = ?
+        SET FullName = ?, userType = ?, bio = ?, resumePath = COALESCE(?, resumePath), photoPath = COALESCE(?, photoPath), tags = ?
         WHERE ID = ?`;
         const values = [FullName, userType, bio, resumePath, photoPath, tags, userID];
 
