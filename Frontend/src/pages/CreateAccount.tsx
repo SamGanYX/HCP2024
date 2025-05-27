@@ -1,9 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
 import './CreateAccount.css';
 import './Login.css';
 import { useNavigate } from 'react-router-dom';
 
+
+interface User {
+  ID: number;
+  FullName: string;
+  Email: string;
+  userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor';
+  bio?: string;
+  tags?: string[];
+  resumePath?: string;
+}
+
 const UpdateProfile = () => {
+  //const [user, setUser] = useState<User | null>(null);
   const [FullName, setFullName] = useState("");
   const [userType, setUserType] = useState("Project Seeker");
   const [Resume, setResume] = useState<File | null>(null);
@@ -13,6 +26,42 @@ const UpdateProfile = () => {
   const navigate = useNavigate();
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('/src/assets/devsync_logo_nobg.png');
+  const userID = localStorage.getItem("userID");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userID) {
+        console.error('No userID found in localStorage');
+        navigate('/auth');
+        return;
+      }
+
+      try {
+        // Fetch user data
+        const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userID}`);
+        
+        // Parse tags inline before updating the state
+        const parsedUser = {
+          ...userResponse.data,
+          tags: typeof userResponse.data.tags === 'string' 
+            ? JSON.parse(userResponse.data.tags) : [],
+        };
+
+        setFullName(parsedUser?.FullName || "")
+        setUserType(parsedUser.userType)
+        setBio(parsedUser.bio || "")
+        setSelectedTags(parsedUser.tags)
+        setResume(parsedUser.resumePath)
+        //setUser(parsedUser);
+
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setError('Failed to load dashboard data');
+      }
+    };
+    fetchUserData();
+  }, []
+  )
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -26,7 +75,9 @@ const UpdateProfile = () => {
       setPhoto(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPhotoPreview(reader.result.toString());
+        if (reader.result !== null) {
+          setPhotoPreview(reader.result.toString());
+        }
       }
       reader.readAsDataURL(file);
     }
@@ -120,6 +171,7 @@ const UpdateProfile = () => {
             <input
               id="fullName"
               type="text"
+              value={FullName}
               placeholder="Enter full name"
               onChange={(e) => setFullName(e.target.value)}
             />
@@ -149,6 +201,7 @@ const UpdateProfile = () => {
             <textarea
               id="bio"
               placeholder="Enter Bio"
+              value={Bio}
               onChange={(e) => setBio(e.target.value)}
             ></textarea>
 
