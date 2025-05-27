@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users ( 
     ID INT NOT NULL AUTO_INCREMENT, 
     Username VARCHAR(255) NOT NULL, 
-    FullName VARCHAR(255) NOT NULL,
+    FullName VARCHAR(255),
     Email VARCHAR(255) NOT NULL, 
     Password VARCHAR(255) NOT NULL, 
     userType ENUM('Project Seeker', 'Project Owner', 'Mentor/Advisor') NOT NULL,
@@ -156,3 +156,11 @@ CREATE TABLE user_swipes (
 );
 
 ALTER TABLE users ADD photoPath VARCHAR(255);
+
+INSERT INTO users (Username, FullName, Email, Password, userType, resumePath, bio, tags, photoPath) VALUES
+('samganyx', 'samganyx', 'samganyx@uw.edu', 'password', 'Project Seeker', '1748384610833.pdf', 'Technical Manager\nDebugging lead', '["Frontend","Backend","Full Stack"]', '1748384610836.png'),
+('huannnguyen', 'huannnguyen', 'huannnguyen@uw.edu', 'password', 'Project Seeker', '1748384784831.pdf', 'UI/UX, Frontend', '["Frontend"]', '1748384784837.JPG'),
+('anika-222', 'Anika Rao', 'anika-222@uw.edu', 'password', 'Project Seeker', '1748384868433.pdf', 'Backend', '["Backend"]', '1748384868438.PNG'),
+('BenFukuzawa', 'BenFukuzawa', 'BenFukuzawa@uw.edu', 'password', 'Project Seeker', '1748384951330.pdf', 'Backend', '["Backend"]', '1748384951331.png'),
+('seannaqin', 'seannaqin', 'seannaqin@uw.edu', 'password', 'Project Seeker', '1748385013364.pdf', 'I am worse than Sam', '["Backend"]', '1748385013368.JPG'),
+('sophiaxzhang', 'sophiaxzhang', 'sophiaxzhang@uw.edu', 'password', 'Project Seeker', NULL, 'Full-stack', '["Full Stack"]', '1748385335365.JPG');
