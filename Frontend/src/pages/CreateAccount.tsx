@@ -5,16 +5,6 @@ import './Login.css';
 import { useNavigate } from 'react-router-dom';
 
 
-interface User {
-  ID: number;
-  FullName: string;
-  Email: string;
-  userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor';
-  bio?: string;
-  tags?: string[];
-  resumePath?: string;
-}
-
 const UpdateProfile = () => {
   //const [user, setUser] = useState<User | null>(null);
   const [FullName, setFullName] = useState("");
@@ -26,6 +16,7 @@ const UpdateProfile = () => {
   const navigate = useNavigate();
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('/src/assets/blank_pfp.png');
+  const [hasResume, setHasResume] = useState<boolean>(false);
   const userID = localStorage.getItem("userID");
 
   useEffect(() => {
@@ -56,6 +47,9 @@ const UpdateProfile = () => {
           setPhotoPreview(`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${parsedUser.photoPath}`);
           setPhoto(null);
         }
+        if (parsedUser.resumePath) {
+          setHasResume(true);
+        }
 
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -69,6 +63,7 @@ const UpdateProfile = () => {
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setResume(e.target.files[0]);
+      setHasResume(true);
     }
   };
 
@@ -171,6 +166,7 @@ const UpdateProfile = () => {
         <div className="column-r">
           {TheError && <p>{TheError}</p>}
           <form onSubmit={handleSubmit}>
+            <label htmlFor="fullName">Full Name:</label>
             <input
               id="fullName"
               type="text"
@@ -192,7 +188,8 @@ const UpdateProfile = () => {
               </select>
             </div>
 
-            <label htmlFor="resume">Resume:</label>
+            <label htmlFor="resume">{hasResume ? 'New Resume:' : 'Resume:'}</label>
+            
             <input
               id="resume"
               type="file"
