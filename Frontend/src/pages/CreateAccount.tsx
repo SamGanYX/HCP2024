@@ -25,7 +25,7 @@ const UpdateProfile = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const navigate = useNavigate();
   const [photo, setPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string>('/src/assets/devsync_logo_nobg.png');
+  const [photoPreview, setPhotoPreview] = useState<string>('/src/assets/blank_pfp.png');
   const userID = localStorage.getItem("userID");
 
   useEffect(() => {
@@ -47,12 +47,14 @@ const UpdateProfile = () => {
             ? JSON.parse(userResponse.data.tags) : [],
         };
 
-        setFullName(parsedUser?.FullName || "")
-        setUserType(parsedUser.userType)
-        setBio(parsedUser.bio || "")
-        setSelectedTags(parsedUser.tags)
-        setResume(parsedUser.resumePath)
-        //setUser(parsedUser);
+        setFullName(parsedUser?.FullName || "");
+        setUserType(parsedUser.userType);
+        setBio(parsedUser.bio || "");
+        setSelectedTags(parsedUser.tags);
+
+        if (parsedUser.photoPath) {
+          setPhotoPreview(`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${parsedUser.photoPath}`);
+        }
 
       } catch (error) {
         console.error('Error fetching user data:', error);
