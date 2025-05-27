@@ -166,6 +166,7 @@ const UpdateProfile = () => {
         <div className="column-r">
           {TheError && <p>{TheError}</p>}
           <form onSubmit={handleSubmit}>
+            <div className="form-group-calorie-form">
             <label htmlFor="fullName">Full Name:</label>
             <input
               id="fullName"
@@ -174,6 +175,7 @@ const UpdateProfile = () => {
               placeholder="Enter full name"
               onChange={(e) => setFullName(e.target.value)}
             />
+            </div>
             <div className="form-group-calorie-form">
               <label htmlFor="userType">User Type:</label>
               <select
@@ -188,35 +190,40 @@ const UpdateProfile = () => {
               </select>
             </div>
 
-            <label htmlFor="resume">{hasResume ? 'New Resume:' : 'Resume:'}</label>
-            
-            <input
-              id="resume"
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={handleResumeChange}
-            />
+            <div className="form-group-calories-form">
+              <label htmlFor="resume">{hasResume ? 'New Resume:' : 'Resume:'}</label>
+              <input
+                id="resume"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleResumeChange}
+              />
+            </div>
 
-            <label htmlFor="bio">Short Bio:</label>
-            <textarea
-              id="bio"
-              placeholder="Enter Bio"
-              value={Bio}
-              onChange={(e) => setBio(e.target.value)}
-            ></textarea>
+            <div className="form-group-calories-form">
+              <label htmlFor="bio">Short Bio:</label>
+              <textarea
+                id="bio"
+                placeholder="Enter Bio"
+                value={Bio}
+                onChange={(e) => setBio(e.target.value)}
+              ></textarea>
+            </div>
 
-            <label htmlFor="tags">Tags:</label>
-            <div style={{ display: "flex", gap: "8px" }}>
-              {["Frontend", "Backend", "Full Stack"].map(tag => (
-                <button
-                  key={tag}
-                  type="button"
-                  className={`tag-btn ${selectedTags.includes(tag) ? 'selected' : ''}`}
-                  onClick={() => handleTagClick(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
+            <div className="form-group-calorie-form">
+              <label htmlFor="tags">Tags:</label>
+              <div style={{ display: "flex", gap: "8px" }}>
+                {["Frontend", "Backend", "Full Stack"].map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    className={`tag-btn ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                    onClick={() => handleTagClick(tag)}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
             <button type="submit" className="btn btn-primary">
               Edit Profile
