@@ -54,6 +54,7 @@ const UpdateProfile = () => {
 
         if (parsedUser.photoPath) {
           setPhotoPreview(`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${parsedUser.photoPath}`);
+          setPhoto(null);
         }
 
       } catch (error) {
