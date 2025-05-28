@@ -142,34 +142,60 @@ const Dashboard: React.FC = () => {
     return imageExtensions.includes(extension);
   };
 
-  const renderUser = () => (
-    <div className="dashboard-content">
-      <h2>Welcome, {user?.FullName}</h2>
-      <div className="user-info">
+const renderUser = () => {
+    return (
+      <div className="dashboard-content">
         <h3>Your Profile</h3>
-        <p><strong>Full Name:</strong> {user?.FullName || 'Not provided yet'}</p>
-        <p><strong>Email:</strong> {user?.Email}</p>
-        <p><strong>User Type:</strong> {user?.userType || 'Not specified'}</p>
-        <p><strong>Bio:</strong> {user?.bio || 'No bio added yet'}</p>
-        <p><strong>Tags:</strong> {user?.tags || 'No tags selected'}</p>
-        {user?.resumePath ? (
-          <p>
-            <strong>Resume:</strong> 
-            <a 
-              href={`${import.meta.env.VITE_BACKEND_URL}/uploads/resumes/${user.resumePath}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              View Resume
-            </a>
-          </p>
-        ) : (
-          <p><strong>Resume:</strong> Not uploaded yet</p>
-        )}
+        <div className="profile-header">
+          <div className="profile-avatar">
+            <img
+              src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user?.profileImage || 'default-avatar.png'}`}
+              alt="Profile"
+              className="avatar"
+            />
+          </div>
+          <div className="profile-info">
+            <div className="username-actions">
+              <h2>{user?.FullName || 'User Name'}</h2>
+            </div>
+            <div className="stats">
+              <span>{user?.Email}</span>
+            </div>
+            <div className="user-type">
+              <span>
+                <strong>User Type:</strong> {user?.userType}
+              </span>
+            <div className="user-resume">
+            {user?.resumePath ? (
+              <span>
+                <strong>Resume:</strong>
+                <a
+                  href={`${import.meta.env.VITE_BACKEND_URL}/uploads/resumes/${user.resumePath}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Resume
+                </a>
+              </span>
+            ) : (
+              <span>
+                <strong>Resume:</strong> Not uploaded yet
+              </span>
+            )}
+            </div>
+            </div>
+            {user?.tags && (
+              <button className="tags-button">{user.tags}</button>
+            )}
+            <div className="bio-info">
+              {user?.bio && <span>{user.bio}</span>}
+            </div>
+          </div>
+        </div>
       </div>
-      {/* Add matched projects, liked projects, etc. */}
-    </div>
-  );
+    );
+  };
+
 
   const renderProjects = () => (
     <div className="dashboard-content">

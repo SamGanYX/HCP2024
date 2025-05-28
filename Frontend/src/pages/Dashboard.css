@@ -6,6 +6,102 @@
   margin-bottom: 2rem;
 }
 
+
+.profile-avatar {
+  width: 77px;
+  height: 77px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 1rem;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-info {
+    flex-grow: 1;
+    padding-left: 4rem; /* Add left padding */
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    /* Removed or reduced right padding to avoid double spacing */
+}
+
+.username-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.username-actions h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.actions button {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.settings-icon {
+  font-size: 1.2rem;
+  margin-left: 0.5rem;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.stats span {
+  color: #000000;
+}
+
+.user-type { /* Added styles for user type */
+  font-size: 0.875rem;
+  color: #000000;
+  margin-bottom: 0.5rem;
+}
+
+.bio-info {
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.bio-info p {
+  margin: 0;
+}
+
+.bio-info b {
+  font-weight: bold;
+}
+
+.tags-button {
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
 .user-info {
   padding: 1.5rem;
   background: #f8f9fa;
