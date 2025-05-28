@@ -149,7 +149,7 @@ const renderUser = () => {
         <div className="profile-header">
           <div className="profile-avatar">
             <img
-              src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user?.profileImage || 'default-avatar.png'}`}
+              src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user?.photoPath || 'default-avatar.png'}`}
               alt="Profile"
               className="avatar"
             />
