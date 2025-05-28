@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProjectCard from '../components/ProjectCard';
+import MatchPopup from '../components/MatchPopup';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
@@ -12,7 +13,7 @@ interface User {
   bio?: string;
   tags?: string[];
   resumePath?: string;
-
+  photoPath?: string;
 }
 
 interface Project {
@@ -60,6 +61,8 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
+  const [showMatchPopup, setShowMatchPopup] = useState(false);
+  const [matchedUser, setMatchedUser] = useState<Match | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -272,7 +275,11 @@ const renderUser = () => {
 
             const data = await response.json();
             if (data.match) {
-                alert(`You matched with ${matchedUserID}!`);
+                const matchedUserData = matches.find(match => match.ID === matchedUserID);
+                if (matchedUserData) {
+                    setMatchedUser(matchedUserData);
+                    setShowMatchPopup(true);
+                }
             }
         } else if (status === 'Rejected') {
             // Call the reject endpoint when skip button is pressed
@@ -385,6 +392,15 @@ const renderUser = () => {
             {projects.length > 0 && renderProjects()}
             {user.userType === 'Mentor/Advisor' && renderMentorAdvisor()}
         </div>
+        {showMatchPopup && matchedUser && (
+            <MatchPopup
+                matchedUserId={matchedUser.ID}
+                matchedUserName={matchedUser.FullName}
+                matchedUserPhoto={matchedUser.profileImage}
+                currentUserPhoto={user?.photoPath}
+                onClose={() => setShowMatchPopup(false)}
+            />
+        )}
     </div>
   );
 };
