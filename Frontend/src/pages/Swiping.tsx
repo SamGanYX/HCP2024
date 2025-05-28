@@ -122,8 +122,6 @@ const Swiping: React.FC = () => {
     <div className="app">
       <link href='https://fonts.googleapis.com/css?family=Damion&display=swap' rel='stylesheet' />
       <link href='https://fonts.googleapis.com/css?family=Alatsi&display=swap' rel='stylesheet' />
-      <h1>React Tinder Card</h1>
-      <h2>University of Washington</h2>
       <div className='cardContainer'>
         {users.map((user, index) => (
           <TinderCard
