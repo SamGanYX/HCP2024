@@ -6,7 +6,7 @@ const path = require('path');
 
 const app = express();
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://frontend:5173'],
+    origin: ['http://192.227.148.23:5173', 'http://frontend:5173'],
     credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -19,10 +19,10 @@ const { getWorkouts } = require('./src/WorkoutBot');
 const { getQuote } = require('./src/MotivationalBot');
 
 const connection = mysql.createConnection({
-    host: 'db',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    host: 'mysql',
+    user: 'root',
+    password: 'fX5{vP2,eY4',
+    database: 'devSync'
 });
 
 connection.connect((err) => {
@@ -253,7 +253,7 @@ app.post('/api/swipe', async (req, res) => {
             // Check for a match
             const swipeeSwipes = await connection.promise().query('SELECT swipe_type, matched FROM user_swipes WHERE user_id = ? AND swiped_user_id = ? AND swipe_type = "right"', [swiped_user_id, user_id]);
             // console.log(swipeeSwipes[0][0].swipe_type);
-            if(swipeeSwipes.length == 0) {
+            if (swipeeSwipes.length == 0) {
                 res.status(201).json({ message: 'Swipe recorded successfully.' });
             }
             else if (swipeeSwipes[0][0].swipe_type == "right") {
@@ -264,13 +264,13 @@ app.post('/api/swipe', async (req, res) => {
                         'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
                         [user_id, swiped_user_id]
                     );
-            
+
                     console.log(user_swipe_id);
                     const swiped_user_swipe_id = await connection.promise().query(
                         'SELECT id FROM user_swipes WHERE user_id = ? AND swiped_user_id = ?',
                         [swiped_user_id, user_id]
                     );
-            
+
                     // Update both users' matched arrays in the database
                     await connection.promise().query(
                         'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
@@ -280,10 +280,10 @@ app.post('/api/swipe', async (req, res) => {
                         'UPDATE user_swipes SET status = "Accepted", matched = 1 WHERE id = ?',
                         swiped_user_swipe_id[0][0].id
                     );
-            
-                    return res.status(200).json({ 
+
+                    return res.status(200).json({
                         message: 'Swipe accepted successfully, and a match was made!',
-                        match: true 
+                        match: true
                     });
                 } catch (error) {
                     console.error('Error accepting swipe:', error);
@@ -891,9 +891,9 @@ app.post('/api/accept-swipe', async (req, res) => {
             swiped_user_swipe_id[0][0].id
         );
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             message: 'Swipe accepted successfully, and a match was made!',
-            match: true 
+            match: true
         });
     } catch (error) {
         console.error('Error accepting swipe:', error);
@@ -924,12 +924,36 @@ app.post('/api/reject-swipe', async (req, res) => {
             user_swipe_id[0][0].id
         );
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             message: 'Swipe rejected successfully.',
-            match: false 
+            match: false
         });
     } catch (error) {
         console.error('Error rejecting swipe:', error);
         res.status(500).json({ error: 'Failed to reject swipe.' });
+    }
+});
+
+// New endpoint to get matched users for a specific user
+app.get('/finished_matches/user/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const sql = `
+            SELECT u.ID, u.FullName, u.Username, u.Email, u.photoPath
+            FROM user_swipes s
+            JOIN users u ON s.swiped_user_id = u.ID
+            WHERE s.user_id = ? AND s.matched = 1
+        `;
+
+        const [matches] = await connection.promise().query(sql, [userId]);
+
+        if (matches.length === 0) {
+            return res.status(404).json({ message: 'No matches found' });
+        }
+
+        res.json(matches);
+    } catch (error) {
+        console.error('Error fetching matches:', error);
+        res.status(500).json({ error: 'Failed to fetch matches' });
     }
 });

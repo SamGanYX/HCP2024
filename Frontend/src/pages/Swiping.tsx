@@ -192,3 +192,4 @@ const Swiping: React.FC = () => {
 };
 
 export default Swiping;
+

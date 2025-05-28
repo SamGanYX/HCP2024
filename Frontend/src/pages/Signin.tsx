@@ -20,7 +20,10 @@ const Signin = () => {
     e.preventDefault();
     try {
       const username = email.split('@')[0];
-      
+
+
+      console.log(`${import.meta.env.VITE_BACKEND_URL}/login`);
+
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/login`, {
         method: 'POST',
         headers: {
@@ -48,9 +51,9 @@ const Signin = () => {
   return (
     <div className="signin-page-container">
       <div className="signin-page-content">
-        <img 
-          src={devSyncLogo} 
-          alt="devSync Logo" 
+        <img
+          src={devSyncLogo}
+          alt="devSync Logo"
           className="logo"
         />
         <h1 className="brand-name">
@@ -59,9 +62,9 @@ const Signin = () => {
         </h1>
 
         <h2 className="signin-page-heading">Sign in with UW email</h2>
-        
+
         {error && <p className="error-message">{error}</p>}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>UW Email</label>
@@ -101,7 +104,7 @@ const Signin = () => {
             />
           </div>
 
-          <button 
+          <button
             className="continue-button"
             disabled={!isValidEmail || !password}
             type="submit"

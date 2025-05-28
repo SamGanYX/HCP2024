@@ -1,5 +1,5 @@
 import devSyncLogo from '../assets/devsync_logo.webp';
-import './landing.css';
+import './Landing.css';
 import { useNavigate } from 'react-router-dom';
 
 const Landing = () => {
