@@ -6,10 +6,13 @@ import './Dashboard.css';
 
 interface User {
   ID: number;
-  Username: string;
+  FullName: string;
   Email: string;
   userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor';
   bio?: string;
+  tags?: string[];
+  resumePath?: string;
+
 }
 
 interface Project {
@@ -38,6 +41,16 @@ interface ProjectImage {
   imageURL: string; 
 }
 
+interface Match {
+  ID: number;
+  FullName: string;
+  Email: string;
+  userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor';
+  profileImage?: string;
+  matchDate: string;
+  status: 'Pending' | 'Accepted' | 'Rejected';
+}
+
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -45,32 +58,83 @@ const Dashboard: React.FC = () => {
   const userID = localStorage.getItem("userID");
   const [projectImages, setProjectImages] = useState<ProjectImage[]>([]);
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const [matches, setMatches] = useState<Match[]>([]);
+
   useEffect(() => {
     const fetchUserData = async () => {
-      try {
-        // Replace with your actual API endpoint
-        const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userID}`);
-        setUser(userResponse.data);
+      if (!userID) {
+        console.error('No userID found in localStorage');
+        navigate('/auth');
+        return;
+      }
 
-        // Fetch additional data based on user type
-        const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects/user/${userID}`);
-        setProjects(projectsResponse.data);
-        if (userResponse.data.userType === 'Mentor/Advisor') {
-          const investorResponse = await axios.get(`/api/investors/${userResponse.data.ID}`);
-          setInvestorInfo(investorResponse.data);
-        }
+      try {
+        // Fetch user data
+        const userResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/users/${userID}`);
+        
+        // Parse tags inline before updating the state
+        const parsedUser = {
+          ...userResponse.data,
+          tags: typeof userResponse.data.tags === 'string' 
+            ? JSON.parse(userResponse.data.tags).join(', ') : userResponse.data.tags,
+        };
+
+        setUser(parsedUser);
+
+        // Fetch projects
+        // const projectsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/projects/user/${userID}`);
+        // setProjects(projectsResponse.data);
+        
+        // Fetch mutual matches - add this
+        // const matchesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/matches/mutual/${userID}`);
+        // setMatches(matchesResponse.data);
+        
+        // if (userResponse.data.userType === 'Mentor/Advisor') {
+        //   const investorResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/investors/${userResponse.data.ID}`);
+        //   setInvestorInfo(investorResponse.data);
+        // }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        setError('Failed to load dashboard data');
       }
     };
 
+    // Fetch project images
     fetch(`${import.meta.env.VITE_BACKEND_URL}/project_images`)
       .then((response) => response.json())
       .then((data) => setProjectImages(data))
       .catch((error) => console.error("Error fetching project images:", error));
 
     fetchUserData();
-  }, []);
+  }, [userID, navigate]);
+
+  useEffect(() => {
+    if (matches.length === 0) {
+      const fetchPotentialConnections = async () => {
+        try {
+          console.log('Fetching potential connections for user:', userID); // Debug log
+          
+          // First try to get users who swiped right on the current user
+          const swipedRightResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/swiped-right-on/${userID}`);
+          console.log('Swiped right response:', swipedRightResponse.data); // Debug log
+          
+          if (swipedRightResponse.data && swipedRightResponse.data.length > 0) {
+            console.log('Setting matches from swiped right users'); // Debug log
+            setMatches(swipedRightResponse.data);
+            return;
+          } else {
+            return;
+          }
+        } catch (error) {
+          console.error('Error fetching potential connections:', error);
+          setError('Failed to load potential connections');
+        }
+      };
+
+      fetchPotentialConnections();
+    }
+  }, [matches, userID]);
 
   const isImageFile = (filename: string): boolean => {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
@@ -78,17 +142,60 @@ const Dashboard: React.FC = () => {
     return imageExtensions.includes(extension);
   };
 
-  const renderUser = () => (
-    <div className="dashboard-content">
-      <h2>Welcome, {user?.Username}</h2>
-      <div className="user-info">
+const renderUser = () => {
+    return (
+      <div className="dashboard-content">
         <h3>Your Profile</h3>
-        <p>Email: {user?.Email}</p>
-        <p>Bio: {user?.bio || 'No bio added yet'}</p>
+        <div className="profile-header">
+          <div className="profile-avatar">
+            <img
+              src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user?.photoPath || 'default-avatar.png'}`}
+              alt="Profile"
+              className="avatar"
+            />
+          </div>
+          <div className="profile-info">
+            <div className="username-actions">
+              <h2>{user?.FullName || 'User Name'}</h2>
+            </div>
+            <div className="stats">
+              <span>{user?.Email}</span>
+            </div>
+            <div className="user-type">
+              <span>
+                <strong>User Type:</strong> {user?.userType}
+              </span>
+            <div className="user-resume">
+            {user?.resumePath ? (
+              <span>
+                <strong>Resume:</strong>
+                <a
+                  href={`${import.meta.env.VITE_BACKEND_URL}/uploads/resumes/${user.resumePath}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Resume
+                </a>
+              </span>
+            ) : (
+              <span>
+                <strong>Resume:</strong> Not uploaded yet
+              </span>
+            )}
+            </div>
+            </div>
+            {user?.tags && (
+              <button className="tags-button">{user.tags}</button>
+            )}
+            <div className="bio-info">
+              {user?.bio && <span>{user.bio}</span>}
+            </div>
+          </div>
+        </div>
       </div>
-      {/* Add matched projects, liked projects, etc. */}
-    </div>
-  );
+    );
+  };
+
 
   const renderProjects = () => (
     <div className="dashboard-content">
@@ -105,7 +212,7 @@ const Dashboard: React.FC = () => {
                   isImageFile(image.imageURL) ? (
                     <img
                       key={index}
-                      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${image.imageURL}`}
+                      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${image.imageURL}`}
                       alt={`Project ${project.projectName} - Image ${index + 1}`}
                       className="project-image"
                     />
@@ -145,6 +252,127 @@ const Dashboard: React.FC = () => {
     </div>
   );
 
+  const handleMatchAction = async (matchedUserID: number, status: 'Accepted' | 'Rejected') => {
+    try {
+        const userID = localStorage.getItem("userID");
+
+        if (status === 'Accepted') {
+            // Send request to backend to record the swipe
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: userID,
+                    swiped_user_id: matchedUserID,
+                    swipeType: 'right',
+                }),
+            });
+
+            const data = await response.json();
+            if (data.match) {
+                alert(`You matched with ${matchedUserID}!`);
+            }
+        } else if (status === 'Rejected') {
+            // Call the reject endpoint when skip button is pressed
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/reject-swipe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userID,
+                    swipedUserId: matchedUserID,
+                }),
+            });
+
+            const data = await response.json();
+            if (data.message) {
+                alert(data.message);
+            }
+        }
+
+        await axios.patch(
+            `${import.meta.env.VITE_BACKEND_URL}/api/matches/status/${userID}/${matchedUserID}`, 
+            { status }
+        );
+
+        // Update matches locally to reflect the new status
+        // setMatches(matches.map(match => 
+        //     match.ID === matchedUserID ? { ...match, status } : match
+        // ));
+    } catch (error) {
+        console.error('Error updating match status:', error);
+        setError('Failed to update match status');
+    }
+  };
+
+  const renderMutualMatches = () => (
+    <div className="dashboard-section">
+      <h3>Potential Connections</h3>
+      {matches.length > 0 ? (
+        <div className="matches-grid">
+          {matches.map((match) => (
+            <div key={match.ID} className="match-card">
+              <div className="match-header">
+                {match.profileImage ? (
+                  <img 
+                    src={`${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${match.profileImage}`} 
+                    alt={match.FullName} 
+                    className="match-avatar"
+                  />
+                ) : (
+                  <div className="match-avatar-placeholder">
+                    {match.FullName.charAt(0)}
+                  </div>
+                )}
+                <h4>{match.FullName}</h4>
+              </div>
+              
+              <div className="match-details">
+                <p><strong>User Type:</strong> {match.userType}</p>
+                <p><strong>Email:</strong> {match.Email}</p>
+                <p><strong>Status:</strong> <span className={`status-${match.status.toLowerCase()}`}>{match.status}</span></p>
+              </div>
+              
+              <div className="match-actions">
+                <button 
+                  className="btn view-btn"
+                  onClick={() => navigate(`/user/${match.ID}`)}
+                >
+                  View Profile
+                </button>
+                
+                {match.status === 'Pending' && (
+                  <>
+                    <button 
+                      className="btn accept-btn"
+                      onClick={() => handleMatchAction(match.ID, 'Accepted')}
+                    >
+                      Connect
+                    </button>
+                    <button 
+                      className="btn reject-btn"
+                      onClick={() => handleMatchAction(match.ID, 'Rejected')}
+                    >
+                      Skip
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="no-matches">
+          <p>No users found.</p>
+          <button className="btn" onClick={() => navigate('/swiping')}>Go to Swiping</button>
+        </div>
+      )}
+    </div>
+  );
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -153,6 +381,7 @@ const Dashboard: React.FC = () => {
     <div className="container">
         <div className="dashboard-content">
             {renderUser()}
+            {renderMutualMatches()}
             {projects.length > 0 && renderProjects()}
             {user.userType === 'Mentor/Advisor' && renderMentorAdvisor()}
         </div>

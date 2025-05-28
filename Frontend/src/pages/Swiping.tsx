@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import TinderCard from 'react-tinder-card';
 import './Swiping.css';
 
@@ -7,92 +7,81 @@ import leftButtonImg from '../assets/buttons/leftButtonImg.svg';
 import rightButtonImg from '../assets/buttons/rightButtonImg.svg';
 import roseIcon from '../assets/buttons/roseIcon.png';
 
-// hardcoded character images
-import richardImg from '../assets/img/richard.jpg';
-import erlichImg from '../assets/img/erlich.jpg';
-import monicaImg from '../assets/img/monica.jpg';
-import jaredImg from '../assets/img/jared.jpg';
-import dineshImg from '../assets/img/dinesh.jpg';
-
-
+// Updated Character interface to match the users table
 interface Character {
-  name: string;
-  url: string;
-  position: string;
-  tags: string[];
-  description: string;
+  ID: number; // Unique identifier
+  Username: string; // Username
+  FullName: string; // Full name
+  Email: string; // Email address
+  userType: 'Project Seeker' | 'Project Owner' | 'Mentor/Advisor'; // User type
+  resumePath: string; // Path to the uploaded resume
+  photoPath: string; // Path to the uploaded resume
+  bio: string; // Biography
+  tags: string[]; // Tags associated with the user
 }
 
-const db: Character[] = [
-  {
-    name: 'Richard Hendricks',
-    url: richardImg,
-    position: 'Software Engineer',
-    tags: ['Techie', 'Developer', 'Programmer'],
-    description: 'A talented software engineer focused on building scalable solutions for startups.'
-  },
-  {
-    name: 'Erlich Bachman',
-    url: erlichImg,
-    position: 'Startup Incubator',
-    tags: ['Dog Lover', 'Backend', 'SQL'],
-    description: 'A confident and charismatic startup guru who loves making business connections.'
-  },
-  {
-    name: 'Monica Hall',
-    url: monicaImg,
-    position: 'UX/UI Design',
-    tags: ['Figma', 'React', 'Quirky'],
-    description: 'A passionate UX/UI designer with a keen eye for user-centric design.'
-  },
-  {
-    name: 'Jared Dunn',
-    url: jaredImg,
-    position: 'CEO',
-    tags: ['Nonchalant', 'Chill', '12X TA', 'That guy'],
-    description: 'A calm and composed CEO with a strategic vision for growth and innovation.'
-  },
-  {
-    name: 'Dinesh Chugtai',
-    url: dineshImg,
-    position: 'Startup Incubator',
-    tags: ['Bouldering', 'Data Science', 'Entrepenuer'],
-    description: 'An ambitious entrepreneur with a deep interest in data science and climbing.'
-  },
-];
-
 const Swiping: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState<number>(db.length - 1);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [lastDirection, setLastDirection] = useState<string | undefined>();
-
+  const [users, setUsers] = useState<Character[]>([]);
+  
   const currentIndexRef = useRef<number>(currentIndex);
   const childRefs = useMemo(
-    () => Array(db.length).fill(0).map(() => React.createRef<TinderCard>()),
-    []
+    () => Array(users.length).fill(0).map(() => React.createRef<TinderCard>()),
+    [users.length]
   );
+
+  const userID = localStorage.getItem("userID");
 
   const updateCurrentIndex = (val: number): void => {
     setCurrentIndex(val);
+    console.log(val);
     currentIndexRef.current = val;
   };
 
-  const canGoBack = currentIndex < db.length - 1;
+  const canGoBack = currentIndex < users.length - 1;
   const canSwipe = currentIndex >= 0;
 
-  const swiped = (direction: string, nameToDelete: string, index: number): void => {
+  const swiped = async (direction: string, swiped_user_id: number, index: number): Promise<void> => {
     setLastDirection(direction);
     updateCurrentIndex(index - 1);
-  };
 
-  const outOfFrame = (name: string, idx: number): void => {
-    console.log(`${name} (${idx}) left the screen!`, currentIndexRef.current);
-    if (currentIndexRef.current >= idx) {
-      childRefs[idx].current?.restoreCard();
+    if (direction === 'right') {
+      console.log(`You swiped right on ${swiped}`);
+      // Send request to backend to record the swipe
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/swipe`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: userID, // Use the actual current user from login info
+            swiped_user_id: swiped_user_id, // Use the actual current user from login info
+            swipeType: direction,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.match) {
+          alert(`You matched with ${swiped}!`);
+        }
+      } catch (error) {
+        console.error('Error sending swipe data:', error);
+      }
     }
   };
 
+  const outOfFrame = (swiped_user_id: number, idx: number): void => {
+    console.log(`${swiped_user_id} (${idx}) left the screen!`, currentIndexRef.current);
+    if (currentIndexRef.current >= idx) {
+      childRefs[idx].current?.restoreCard();
+    }
+    swiped("left", swiped_user_id, idx);
+  };
+
   const swipe = async (dir: string): Promise<void> => {
-    if (canSwipe && currentIndex < db.length) {
+    if (canSwipe && currentIndex < users.length) {
       await childRefs[currentIndex].current?.swipe(dir);
     }
   };
@@ -104,64 +93,84 @@ const Swiping: React.FC = () => {
     await childRefs[newIndex].current?.restoreCard();
   };
 
+  useEffect(() => {
+    const fetchMatchableUsers = async () => {
+      if (!userID) return;
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/users/matchable/${userID}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch matchable users');
+        }
+        const data = await response.json();
+        setUsers(data);
+        setCurrentIndex(data.length-1);
+      } catch (error) {
+        console.error('Error fetching matchable users:', error);
+      }
+    };
+
+    fetchMatchableUsers();
+  }, [userID]);
+
   return (
     <div className="app">
       <link href='https://fonts.googleapis.com/css?family=Damion&display=swap' rel='stylesheet' />
       <link href='https://fonts.googleapis.com/css?family=Alatsi&display=swap' rel='stylesheet' />
-      <h1>React Tinder Card</h1>
-      <h2>University of Washington</h2>
       <div className='cardContainer'>
-        {db.map((character, index) => (
+        {users.map((user, index) => (
           <TinderCard
             ref={childRefs[index]}
             className='swipe'
-            key={character.name}
-            onSwipe={(dir: string) => swiped(dir, character.name, index)}
-            onCardLeftScreen={() => outOfFrame(character.name, index)}
+            key={user.ID} // Use ID as the key
+            onSwipe={(dir: string) => swiped(dir, user.ID, index)}
+            onCardLeftScreen={() => outOfFrame(user.ID, index)}
           >
-            <div style={{ backgroundImage: `url(${character.url})` }} className='card'>
-              {/* Rose Icon Button at the top left */}
+            <div style={{ backgroundImage: `url(${import.meta.env.VITE_BACKEND_URL}/uploads/photos/${user.photoPath})` }} className='card'>
               <button className="roseButton" onClick={() => console.log("Rose icon clicked!")}>
                 <img src={roseIcon} alt="Rose Icon" />
               </button>
 
               <div className="info-section">
-                <h3>{character.name}</h3>
-                <span className="position">{character.position}</span>
-
-                {/* Description Section */}
-                <p className="description">{character.description}</p>
-
-                {/* Tags Section */}
-                <div className="tags">
-                  {character.tags.map((tag, index) => (
-                    <div key={index} className="tag">
-                      {tag}
-                    </div>
-                  ))}
+                <h3>{user.FullName}</h3>
+                <span className="position">{user.userType}</span>
+                
+                <p className="description">{user.bio}</p>
+                <div className="btn">  
+                  <a className = "btn-text" href={`${import.meta.env.VITE_BACKEND_URL}/uploads/resumes/${user.resumePath}`}> 
+                    <p className="btn-text">View Resume</p>
+                  </a>
                 </div>
 
+                  {/* Tags Section */}
+                  <div className="tags tags-text">
+                    {user.tags}
+                  </div>
+
+                </div>
               </div>
-            </div>
           </TinderCard>
         ))}
       </div>
       <div className='buttons'>
-
-        <button style={{
-          backgroundColor: canSwipe ? '#FFFFFF' : undefined,
-          border: '1px solid #D9D9D9'  /* Add the 1px border here */
-        }}
+        <button style={{ 
+            backgroundColor: canSwipe ? '#FFFFFF' : undefined,
+            border: '1px solid #D9D9D9' 
+          }} 
           onClick={() => swipe('left')}>
           <img src={leftButtonImg} alt="Swipe Left" />
         </button>
 
-        <button style={{
-          backgroundColor: canGoBack ? '#1970FF' : undefined,
-          lineHeight: '18px',
-          fontSize: '15px',  /* Set the font size here */
-        }}
-          onClick={() => goBack()}>
+        <button style={{ 
+            backgroundColor: canGoBack ? '#1970FF' : undefined,
+            lineHeight: '18px',
+            fontSize: '15px' }} 
+            onClick={() => goBack()}>
           Undo swipe!
         </button>
 
@@ -183,3 +192,4 @@ const Swiping: React.FC = () => {
 };
 
 export default Swiping;
+

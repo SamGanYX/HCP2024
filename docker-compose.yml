@@ -1,6 +1,8 @@
+version: '3.8'
+
 services:
   frontend:
-    build:
+    build: 
       context: ./Frontend
       dockerfile: Dockerfile
     ports:
@@ -9,12 +11,12 @@ services:
       - ./Frontend:/app
       - /app/node_modules
     environment:
-      - VITE_BACKEND_URL=http://192.227.148.23:8081
+      - VITE_API_URL=http://192.227.148.23:8081
     depends_on:
       - backend
 
   backend:
-    build:
+    build: 
       context: ./Backend
       dockerfile: Dockerfile
     ports:
