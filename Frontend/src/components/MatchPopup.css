@@ -1,0 +1,140 @@
+.match-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.match-popup {
+  background: linear-gradient(135deg, #08abbd, #1cb4c4);
+  border-radius: 20px;
+  padding: 40px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  box-shadow: 0 0 30px rgba(0, 128, 128, 0.3);
+  animation: slideUp 0.5s ease-out;
+  overflow: hidden;
+}
+
+.match-popup::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.match-content {
+  text-align: center;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.match-header {
+  text-align: center; /* Center the content */
+  margin-bottom: 15px;
+}
+
+.match-header h2 {
+  color: rgb(255, 255, 255);
+  font-size: 2.5em;
+  margin-bottom: 0px; /* Reduce spacing between title and message */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.match-header p {
+  font-size: 1em;
+  margin-bottom: 30px;
+  opacity: 0.9;
+  margin-left: 10px; /* Remove left margin to center the message */
+}
+
+.match-photos {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 30px 0;
+}
+
+.photo-container {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.match-message {
+  margin-top: 30px;
+  font-size: 1.1em;
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+} 
