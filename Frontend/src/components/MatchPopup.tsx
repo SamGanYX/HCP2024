@@ -22,8 +22,10 @@ const MatchPopup: React.FC<MatchPopupProps> = ({
         <button className="close-button" onClick={onClose}>×</button>
         <div className="match-content">
           <div className="match-header">
-            <h2>It's a Match!</h2>
-            <p>You and {matchedUserName} have matched!</p>
+            <h2><strong>It's a Match!</strong></h2>
+            <div>
+              <p>You and <strong>{matchedUserName}</strong> have matched!</p>
+            </div>
           </div>
           
           <div className="match-photos">

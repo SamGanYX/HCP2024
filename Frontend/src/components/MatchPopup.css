@@ -13,7 +13,7 @@
 }
 
 .match-popup {
-  background: linear-gradient(135deg, #008080, #006666);
+  background: linear-gradient(135deg, #08abbd, #1cb4c4);
   border-radius: 20px;
   padding: 40px;
   width: 80%;
@@ -64,16 +64,23 @@
   z-index: 1;
 }
 
+.match-header {
+  text-align: center; /* Center the content */
+  margin-bottom: 15px;
+}
+
 .match-header h2 {
+  color: rgb(255, 255, 255);
   font-size: 2.5em;
-  margin-bottom: 10px;
+  margin-bottom: 0px; /* Reduce spacing between title and message */
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .match-header p {
-  font-size: 1.2em;
+  font-size: 1em;
   margin-bottom: 30px;
   opacity: 0.9;
+  margin-left: 10px; /* Remove left margin to center the message */
 }
 
 .match-photos {
